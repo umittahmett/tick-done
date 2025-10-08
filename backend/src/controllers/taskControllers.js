@@ -13,7 +13,7 @@ export async function getUserTasks(req, res) {
 
 export async function getProjectTasks(req, res) {
   try {
-    const projectId = req.params.projectId
+    const projectId = req.body.projectId
     const data = await taskServices.getProjectTasks({ projectId })
     res.json(data)
   } catch (err) {
