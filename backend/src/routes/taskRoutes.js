@@ -5,12 +5,12 @@ import { isTaskCreator, canCreateTaskInProject, canAccessTask, canViewProjectTas
 
 const router = express.Router()
 
-router.post('/create', auth, canCreateTaskInProject, createTask)
-router.delete('/delete', auth, isTaskCreator, deleteTask)
-router.put('/update', auth, canCreateTaskInProject, updateTask)
-router.get('/get', auth, getUserTasks)
-router.get('/getAll', auth, canAccessTask, getTask)
-router.get('/get/project/:projectId', auth, canViewProjectTasks, getProjectTasks)
+router.post('/createTask', auth, canCreateTaskInProject, createTask)
+router.delete('/deleteTask', auth, isTaskCreator, deleteTask)
+router.put('/updateTask', auth, canCreateTaskInProject, updateTask)
+router.get('/getUserTasks', auth, getUserTasks)
+router.get('/getTask', auth, canAccessTask, getTask)
+router.get('/getProjectTasks', auth, canViewProjectTasks, getProjectTasks)
 
 export default router
 
