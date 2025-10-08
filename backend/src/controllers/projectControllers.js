@@ -10,6 +10,15 @@ export async function getProject(req, res) {
     res.status(400).json({ message: err.message })
   }
 }
+
+export async function getUserProjects(req, res) {
+  try {
+    const data = await projectServices.getUserProjects(req.user.id)
+    res.json(data)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}
   
 export async function createProject(req, res) {
   try {
@@ -40,6 +49,26 @@ export async function deleteProject(req, res) {
   try {
     const { projectId } = req.body
     const data = await projectServices.deleteProject({ projectId })
+    res.json(data)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}
+
+export async function addMemberToProject(req, res) { 
+  try {
+    const { projectId, memberId } = req.body
+    const data = await projectServices.addMemberToProject({ projectId, memberId })
+    res.json(data)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}
+
+export async function deleteMemberFromProject(req, res) { 
+  try {
+    const { projectId, memberId } = req.body
+    const data = await projectServices.deleteMemberFromProject({ projectId, memberId })
     res.json(data)
   } catch (err) {
     res.status(400).json({ message: err.message })

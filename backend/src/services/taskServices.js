@@ -4,6 +4,27 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+export async function getUserTasks({ userId }) {
+  const tasks = await Task.find({
+    $or: [
+      { creator: userId },
+      { assignments: userId }
+    ]
+  }).populate('project creator assignments')
+  
+  return { tasks }
+}
+
+export async function getProjectTasks({ projectId }) {
+  const tasks = await Task.find({
+    $or: [
+      { project: projectId },
+    ]
+  }).populate('project creator assignments')
+  
+  return { tasks }
+}
+
 export async function getTask({ taskId }) {
   const task = await Task.findOne({ _id: taskId })
   if(!task) throw new Error('Task not found')

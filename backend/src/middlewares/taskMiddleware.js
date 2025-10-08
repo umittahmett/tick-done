@@ -1,6 +1,7 @@
 import Task from '../models/Task.js'
 import Project from '../models/Project.js'
 
+
 export async function isTaskCreator(req, res, next) {
   try {
     const { taskId } = req.body
@@ -66,6 +67,32 @@ export async function canCreateTaskInProject(req, res, next) {
 
     if (project.creator.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Only project creator can create tasks' })
+    }
+
+    req.project = project
+    next()
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+export async function canViewProjectTasks(req, res, next) {
+  try {
+    const { projectId } = req.params
+    if (!projectId) {
+      return res.status(400).json({ message: 'Project ID is required' })
+    }
+
+    const project = await Project.findById(projectId)
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' })
+    }
+
+    const isCreator = project.creator.toString() === req.user.id
+    const isMember = project.members.includes(req.user.id)
+
+    if (!isCreator && !isMember) {
+      return res.status(403).json({ message: 'You must be a project member to view tasks' })
     }
 
     req.project = project
