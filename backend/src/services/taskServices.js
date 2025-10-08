@@ -4,29 +4,25 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export async function getUserTasks({ userId }) {
+export async function getUserTasks(userId, projectId) {
   const tasks = await Task.find({
-    $or: [
-      { creator: userId },
-      { assignments: userId }
-    ]
+    project: projectId,
+    assignments: userId
   }).populate('project creator assignments')
   
   return { tasks }
 }
 
-export async function getProjectTasks({ projectId }) {
+export async function getAllProjectTasks(projectId) {
   const tasks = await Task.find({
-    $or: [
-      { project: projectId },
-    ]
+    project: projectId,
   }).populate('project creator assignments')
   
   return { tasks }
 }
 
-export async function getTask({ taskId }) {
-  const task = await Task.findOne({ _id: taskId })
+export async function getTask(taskId) {
+  const task = await Task.findOne({ _id: taskId }).populate('creator assignments')
   if(!task) throw new Error('Task not found')
 
   return { task }
@@ -50,8 +46,7 @@ export async function createTask({ title, description, priority, dueDate, assign
     dueDate, 
     assignments, 
     creator,
-    project: projectId,
-    status: 'todo'
+    project: projectId
   })
   await task.save()
 
@@ -62,16 +57,10 @@ export async function updateTask({ taskId, updateFields }) {
   const task = await Task.findOne({ _id: taskId })
   if(!task) throw new Error('Task not found')
 
-  if(updateFields.assignments && updateFields.assignments.length > 0) {
-    const foundUsers = await User.find({ _id: { $in: updateFields.assignments } })
-    if(foundUsers.length !== updateFields.assignments.length) {
-      throw new Error('Some assigned people not found')
-    }
-  }
-
-  Object.keys(updateFields).forEach(key => {
-    if(updateFields[key] !== undefined) {
-      task[key] = updateFields[key]
+  const allowedFields = ['title', 'description', 'priority', 'dueDate', 'status']
+  allowedFields.forEach(field => {
+    if(updateFields[field] !== undefined) {
+      task[field] = updateFields[field]
     }
   })
 
@@ -80,7 +69,7 @@ export async function updateTask({ taskId, updateFields }) {
   return { task }
 }
 
-export async function deleteTask({ taskId }) {
+export async function deleteTask(taskId) {
   const task = await Task.findOne({ _id: taskId })
   if(!task) throw new Error('Task not found')
 

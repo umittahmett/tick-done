@@ -5,7 +5,7 @@ import Task from '../models/Task.js'
 
 dotenv.config()
 
-export async function getProject({ projectId }) {
+export async function getProject(projectId) {
   const project = await Project.findOne({ _id: projectId })
   if(!project) throw new Error('Project not found')
 
@@ -36,26 +36,19 @@ export async function createProject({ name, description, creator }) {
 export async function updateProject({ projectId, updateFields }) {
   const project = await Project.findOne({ _id: projectId })
   if(!project) throw new Error('Project not found')
-  if(updateFields.members && updateFields.members.length < 1) throw new Error('Members must be at least 1')
-  if(updateFields.members && updateFields.members.length > 0) {
-    const foundUsers = await User.find({ _id: { $in: updateFields.members } })
-    if(foundUsers.length !== updateFields.members.length) {
-      throw new Error('Some assigned people not found')
-    }
-  }
 
-  Object.keys(updateFields).forEach(key => {
-    if(updateFields[key] !== undefined) {
-      project[key] = updateFields[key]
+  const allowedFields = ['name', 'description']
+  allowedFields.forEach(field => {
+    if(updateFields[field] !== undefined) {
+      project[field] = updateFields[field]
     }
   })
 
   await project.save()
-
   return { project }
 }
 
-export async function deleteProject({ projectId }) {
+export async function deleteProject(projectId) {
   const project = await Project.findOne({ _id: projectId })
   if(!project) throw new Error('Project not found')
   

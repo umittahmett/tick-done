@@ -1,36 +1,6 @@
 
 import * as taskServices from '../services/taskServices.js'
 
-export async function getUserTasks(req, res) {
-  try {
-    const userId = req.user.id
-    const data = await taskServices.getUserTasks({ userId })
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
-}
-
-export async function getProjectTasks(req, res) {
-  try {
-    const projectId = req.body.projectId
-    const data = await taskServices.getProjectTasks({ projectId })
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
-}
-
-export async function getTask(req, res) {
-  try {
-    const { taskId } = req.params
-    const data = await taskServices.getTask({ taskId })
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
-}
-
 export async function createTask(req, res) {
   try {
     const { title, description, priority, dueDate, assignments, projectId } = req.body
@@ -42,9 +12,57 @@ export async function createTask(req, res) {
   }
 }
 
+export async function getUserTasks(req, res) {
+  try {
+    const userId = req.user.id
+    const { projectId } = req.params
+
+    if (!projectId) {
+      return res.status(400).json({ message: 'Project ID is required' })
+    }
+
+    const data = await taskServices.getUserTasks(userId, projectId)
+    res.json(data)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}
+
+export async function getAllProjectTasks(req, res) {
+  try {
+    const { projectId } = req.params
+
+    if(!projectId) {
+      return res.status(400).json({ message: 'Project ID is required' })
+    }
+
+    const data = await taskServices.getAllProjectTasks(projectId)
+    res.json(data)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}
+
+export async function getTask(req, res) {
+  try {
+    const { taskId } = req.params
+
+    if(!taskId) {
+      return res.status(400).json({ message: 'Task ID is required' })
+    }
+    
+    const data = await taskServices.getTask(taskId)
+    res.json(data)
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}
+
 export async function updateTask(req, res) {
   try {
-    const { taskId, ...updateFields } = req.body
+    const { taskId } = req.params
+    const updateFields = req.body
+
     if (!taskId) {
       return res.status(400).json({ message: 'Task ID is required' })
     }
@@ -58,8 +76,13 @@ export async function updateTask(req, res) {
 
 export async function deleteTask(req, res) {
   try {
-    const { taskId } = req.body
-    const data = await taskServices.deleteTask({ taskId })
+    const { taskId } = req.params
+    
+    if (!taskId) {
+      return res.status(400).json({ message: 'Task ID is required' })
+    }
+
+    const data = await taskServices.deleteTask(taskId)
     res.json(data)
   } catch (err) {
     res.status(400).json({ message: err.message })
