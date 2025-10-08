@@ -8,7 +8,10 @@ export async function getUserTasks(userId, projectId) {
   const tasks = await Task.find({
     project: projectId,
     assignments: userId
-  }).populate('project creator assignments')
+  })
+  .populate('project')
+  .populate('creator', '_id fullname title email')
+  .populate('assignments', '_id fullname title email')
   
   return { tasks }
 }
@@ -16,13 +19,19 @@ export async function getUserTasks(userId, projectId) {
 export async function getAllProjectTasks(projectId) {
   const tasks = await Task.find({
     project: projectId,
-  }).populate('project creator assignments')
+  })
+  .populate('project')
+  .populate('creator', '_id fullname title email')
+  .populate('assignments', '_id fullname title email')
   
   return { tasks }
 }
 
 export async function getTask(taskId) {
-  const task = await Task.findOne({ _id: taskId }).populate('creator assignments')
+  const task = await Task.findOne({ _id: taskId })
+  .populate('creator', '_id fullname title email')
+  .populate('assignments', '_id fullname title email')
+
   if(!task) throw new Error('Task not found')
 
   return { task }

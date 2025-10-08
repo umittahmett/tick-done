@@ -18,7 +18,9 @@ export async function getUserProjects(userId) {
       { creator: userId },
       { members: userId }
     ]
-  }).populate('creator members')
+  })
+  .populate('creator', '_id fullname title email')
+  .populate('members', '_id fullname title email')
 
   return { projects }
 }
@@ -70,6 +72,8 @@ export async function addMemberToProject({ projectId, memberId }) {
   const user = await User.findOne({ _id: memberId })
   if(!user) throw new Error('User not found')
 
+  if(project.members.includes(memberId)) throw new Error('User is already a member of this project')
+
   project.members.push(memberId)
   await project.save()
 
@@ -82,6 +86,8 @@ export async function deleteMemberFromProject({ projectId, memberId }) {
 
   const user = await User.findOne({ _id: memberId })
   if(!user) throw new Error('User not found')
+
+  if(!project.members.includes(memberId)) throw new Error('User is not a member of this project')
 
   project.members.pull(memberId)
   await project.save()
