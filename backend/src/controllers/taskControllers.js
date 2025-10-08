@@ -13,9 +13,9 @@ export async function getTask(req, res) {
 
 export async function createTask(req, res) {
   try {
-    const { title, description, status, priority, dueDate, assignments } = req.body
+    const { title, description, priority, dueDate, assignments, projectId } = req.body
     const creator = req.user.id
-    const data = await taskServices.createTask({ title, description, status, priority, dueDate, assignments, creator })
+    const data = await taskServices.createTask({ title, description, priority, dueDate, assignments, creator, projectId })
     res.json(data)
   } catch (err) {
     res.status(400).json({ message: err.message })

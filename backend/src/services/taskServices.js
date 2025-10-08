@@ -11,7 +11,7 @@ export async function getTask({ taskId }) {
   return { task }
 }
 
-export async function createTask({ title, description, status, priority, dueDate, assignments, creator }) {
+export async function createTask({ title, description, priority, dueDate, assignments, creator, projectId }) {
   const user = await User.findOne({ _id: creator })
   if(!user) throw new Error('User not found')
   
@@ -22,7 +22,16 @@ export async function createTask({ title, description, status, priority, dueDate
     }
   }
 
-  const task = new Task({ title, description, status, priority, dueDate, assignments, creator })
+  const task = new Task({ 
+    title, 
+    description, 
+    priority, 
+    dueDate, 
+    assignments, 
+    creator,
+    project: projectId,
+    status: 'todo'
+  })
   await task.save()
 
   return { task }

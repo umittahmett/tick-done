@@ -1,13 +1,14 @@
 import express from 'express'
 import { createTask, updateTask, deleteTask, getTask } from '../controllers/taskControllers.js'
 import { auth } from '../middlewares/authMiddleware.js'
+import { isTaskCreator, canAccessTask, canCreateTaskInProject } from '../middlewares/taskMiddleware.js'
 
 const router = express.Router()
 
-// Tüm task route'ları için auth middleware gerekli
-router.post('/create', auth, createTask)
-router.delete('/delete', auth, deleteTask)
-router.put('/update', auth, updateTask)
-router.get('/get', auth, getTask)
+router.post('/create', auth, canCreateTaskInProject, createTask)
+router.delete('/delete', auth, isTaskCreator, deleteTask)
+router.put('/update', auth, canCreateTaskInProject, updateTask)
+router.get('/get', auth, canAccessTask, getTask)
 
 export default router
+

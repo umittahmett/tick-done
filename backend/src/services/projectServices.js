@@ -1,5 +1,4 @@
 import User from '../models/User.js'
-import Task from '../models/Task.js'
 import Project from '../models/Project.js'
 import dotenv from 'dotenv'
 
@@ -12,50 +11,43 @@ export async function getProject({ projectId }) {
   return { project }
 }
 
-export async function createTask({ title, description, status, priority, dueDate, assignments, creator }) {
+export async function createProject({ name, description, creator }) {
   const user = await User.findOne({ _id: creator })
   if(!user) throw new Error('User not found')
-  
-  if(assignments && assignments.length > 0) {
-    const foundUsers = await User.find({ _id: { $in: assignments } })
-    if(foundUsers.length !== assignments.length) {
-      throw new Error('Some assigned people not found')
-    }
-  }
 
-  const task = new Task({ title, description, status, priority, dueDate, assignments, creator })
-  await task.save()
+  const project = new Project({ name, description, creator })
+  await project.save()
 
-  return { task }
+  return { project }
 }
 
-export async function updateTask({ taskId, updateFields }) {
-  const task = await Task.findOne({ _id: taskId })
-  if(!task) throw new Error('Task not found')
-
-  if(updateFields.assignments && updateFields.assignments.length > 0) {
-    const foundUsers = await User.find({ _id: { $in: updateFields.assignments } })
-    if(foundUsers.length !== updateFields.assignments.length) {
+export async function updateProject({ projectId, updateFields }) {
+  const project = await Project.findOne({ _id: projectId })
+  if(!project) throw new Error('Project not found')
+  if(updateFields.members && updateFields.members.length < 1) throw new Error('Members must be at least 1')
+  if(updateFields.members && updateFields.members.length > 0) {
+    const foundUsers = await User.find({ _id: { $in: updateFields.members } })
+    if(foundUsers.length !== updateFields.members.length) {
       throw new Error('Some assigned people not found')
     }
   }
 
   Object.keys(updateFields).forEach(key => {
     if(updateFields[key] !== undefined) {
-      task[key] = updateFields[key]
+      project[key] = updateFields[key]
     }
   })
 
-  await task.save()
+  await project.save()
 
-  return { task }
+  return { project }
 }
 
-export async function deleteTask({ taskId }) {
-  const task = await Task.findOne({ _id: taskId })
-  if(!task) throw new Error('Task not found')
+export async function deleteProject({ projectId }) {
+  const project = await Project.findOne({ _id: projectId })
+  if(!project) throw new Error('Project not found')
 
-  await task.deleteOne()
+  await project.deleteOne()
 
-  return { task }
+  return { project }
 }

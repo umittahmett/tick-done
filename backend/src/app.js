@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/authRoutes.js'
 import taskRoutes from './routes/taskRoutes.js'
+import projectRoutes from './routes/projectRoutes.js'
 import { connectDB } from "./config/db.js"
 import dotenv from 'dotenv'
 
@@ -13,6 +14,7 @@ app.use(cors())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/tasks', taskRoutes)
+app.use('/api/projects', projectRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'Task Manager API running ✅' })
