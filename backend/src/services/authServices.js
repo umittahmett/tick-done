@@ -11,7 +11,7 @@ export async function register({ fullname, title, email, password }) {
   const user = new User({ fullname, title, email, password })
   await user.save()
 
-  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET)
+  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
   return { user, token }
 }
 
@@ -22,6 +22,6 @@ export async function login({ email, password }) {
   const valid = await user.comparePassword(password)
   if(!valid) throw new Error('Wrong password')
 
-  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET)
+  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
   return { user, token }
 }
