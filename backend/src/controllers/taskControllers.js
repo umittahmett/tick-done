@@ -3,7 +3,13 @@ import * as taskServices from '../services/taskServices.js'
 
 export async function createTask(req, res) {
   try {
-    const { title, description, priority, dueDate, assignments, projectId } = req.body
+    const { projectId } = req.params
+
+    if (!projectId) {
+      return res.status(400).json({ message: 'Project ID is required' })
+    }
+    
+    const { title, description, priority, dueDate, assignments } = req.body
     const creator = req.user.id
     const data = await taskServices.createTask({ title, description, priority, dueDate, assignments, creator, projectId })
     res.json(data)
