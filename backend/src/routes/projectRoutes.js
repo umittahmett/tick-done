@@ -5,12 +5,12 @@ import { isProjectCreator, isProjectMember } from '../middlewares/projectMiddlew
 
 const router = express.Router()
 
-router.post('/createProject', auth, createProject) //
-router.delete('/deleteProject/:projectId', auth, isProjectCreator, deleteProject) //
-router.put('/updateProject/:projectId', auth, isProjectCreator, updateProject) //
-router.get('/getProject/:projectId', auth, isProjectMember, getProject) //
-router.get('/getUserProjects', auth, getUserProjects) //
-router.post('/addMemberToProject/:projectId', auth, isProjectCreator, addMemberToProject) //
-router.post('/deleteMemberFromProject/:projectId', auth, isProjectCreator, deleteMemberFromProject) //
+router.post('/createProject', auth, createProject)
+router.delete('/deleteProject/:projectId', auth, isProjectCreator, deleteProject)
+router.put('/updateProject/:projectId', auth, isProjectCreator, updateProject)
+router.get('/getProject/:projectId', auth, isProjectMember, getProject)
+router.get('/getUserProjects', auth, getUserProjects)
+router.post('/addMemberToProject/:projectId', auth, isProjectCreator, addMemberToProject)
+router.post('/deleteMemberFromProject/:projectId', auth, isProjectCreator, deleteMemberFromProject)
 
 export default router
