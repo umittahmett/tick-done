@@ -9,7 +9,6 @@ export async function getUserTasks(userId, projectId) {
     project: projectId,
     assignments: userId
   })
-  .populate('project')
   .populate('creator', '_id fullname title email')
   .populate('assignments', '_id fullname title email')
   
@@ -20,7 +19,6 @@ export async function getAllProjectTasks(projectId) {
   const tasks = await Task.find({
     project: projectId,
   })
-  .populate('project')
   .populate('creator', '_id fullname title email')
   .populate('assignments', '_id fullname title email')
   
