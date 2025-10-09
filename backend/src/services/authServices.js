@@ -13,7 +13,16 @@ export async function register({ fullname, title, email, password }) {
   await user.save()
 
   const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
-  return { user, token }
+  
+  const userInfo = {
+    id: user._id,
+    email: user.email,
+    fullname: user.fullname,
+    title: user.title,
+    createdAt: user.createdAt
+  }
+  
+  return { user: userInfo, token }
 }
 
 export async function login({ email, password }) {
@@ -24,5 +33,14 @@ export async function login({ email, password }) {
   if(!valid) throw new AppError('Wrong password', 401)
 
   const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
-  return { user, token }
+  
+  const userInfo = {
+    id: user._id,
+    email: user.email,
+    fullname: user.fullname,
+    title: user.title,
+    createdAt: user.createdAt
+  }
+  
+  return { user: userInfo, token }
 }

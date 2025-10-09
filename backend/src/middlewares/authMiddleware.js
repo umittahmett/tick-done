@@ -6,7 +6,8 @@ dotenv.config()
 
 export function auth(req, res, next) {
   try {
-    const token = req.headers.authorization?.split(' ')[1]
+    // Cookie'den token al
+    const token = req.cookies.token
     if(!token) {
       throw new AppError('No token provided', 401)
     }

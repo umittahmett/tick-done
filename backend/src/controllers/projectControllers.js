@@ -10,7 +10,10 @@ export async function getProject(req, res) {
     }
     
     const data = await projectServices.getProject(projectId)
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -19,7 +22,10 @@ export async function getProject(req, res) {
 export async function getUserProjects(req, res) {
   try {
     const data = await projectServices.getUserProjects(req.user.id)
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -35,7 +41,11 @@ export async function createProject(req, res) {
     }
     
     const data = await projectServices.createProject({ name, description, creator })
-    res.json(data)
+    res.status(201).json({
+      success: true,
+      message: "Project created successfully",
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -49,8 +59,11 @@ export async function deleteProject(req, res) {
       return res.status(400).json({ message: 'Project ID is required' })
     }
 
-    const data = await projectServices.deleteProject(projectId)
-    res.json(data)
+    await projectServices.deleteProject(projectId)
+    res.status(200).json({
+      success: true,
+      message: "Project deleted successfully"
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -70,7 +83,11 @@ export async function updateProject(req, res) {
     }
     
     const data = await projectServices.updateProject({ projectId, updateFields })
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -86,7 +103,11 @@ export async function addMemberToProject(req, res) {
     }
 
     const data = await projectServices.addMemberToProject({ projectId, memberId })
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      message: "Member added successfully",
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -101,8 +122,11 @@ export async function deleteMemberFromProject(req, res) {
       return res.status(400).json({ message: 'Project ID and Member ID are required' })
     }
 
-    const data = await projectServices.deleteMemberFromProject({ projectId, memberId })
-    res.json(data)
+    await projectServices.deleteMemberFromProject({ projectId, memberId })
+    res.status(200).json({
+      success: true,
+      message: "Member removed successfully"
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }

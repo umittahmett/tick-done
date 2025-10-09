@@ -12,7 +12,11 @@ export async function createTask(req, res) {
     const { title, description, priority, dueDate, assignments } = req.body
     const creator = req.user.id
     const data = await taskServices.createTask({ title, description, priority, dueDate, assignments, creator, projectId })
-    res.json(data)
+    res.status(201).json({
+      success: true,
+      message: "Task created successfully",
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -28,7 +32,10 @@ export async function getUserTasks(req, res) {
     }
 
     const data = await taskServices.getUserTasks(userId, projectId)
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -43,7 +50,10 @@ export async function getAllProjectTasks(req, res) {
     }
 
     const data = await taskServices.getAllProjectTasks(projectId)
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -58,7 +68,10 @@ export async function getTask(req, res) {
     }
     
     const data = await taskServices.getTask(taskId)
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -74,7 +87,11 @@ export async function updateTask(req, res) {
     }
     
     const data = await taskServices.updateTask({ taskId, updateFields })
-    res.json(data)
+    res.status(200).json({
+      success: true,
+      message: "Task updated successfully",
+      data: data
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
@@ -88,8 +105,11 @@ export async function deleteTask(req, res) {
       return res.status(400).json({ message: 'Task ID is required' })
     }
 
-    const data = await taskServices.deleteTask(taskId)
-    res.json(data)
+    await taskServices.deleteTask(taskId)
+    res.status(200).json({
+      success: true,
+      message: "Task deleted successfully"
+    })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
