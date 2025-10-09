@@ -12,7 +12,7 @@ export async function getProject(req, res) {
     const data = await projectServices.getProject(projectId)
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
 
@@ -21,7 +21,7 @@ export async function getUserProjects(req, res) {
     const data = await projectServices.getUserProjects(req.user.id)
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
   
@@ -37,7 +37,7 @@ export async function createProject(req, res) {
     const data = await projectServices.createProject({ name, description, creator })
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
 
@@ -52,7 +52,7 @@ export async function deleteProject(req, res) {
     const data = await projectServices.deleteProject(projectId)
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
 
@@ -72,7 +72,7 @@ export async function updateProject(req, res) {
     const data = await projectServices.updateProject({ projectId, updateFields })
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
 
@@ -88,7 +88,7 @@ export async function addMemberToProject(req, res) {
     const data = await projectServices.addMemberToProject({ projectId, memberId })
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
 
@@ -104,6 +104,6 @@ export async function deleteMemberFromProject(req, res) {
     const data = await projectServices.deleteMemberFromProject({ projectId, memberId })
     res.json(data)
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
