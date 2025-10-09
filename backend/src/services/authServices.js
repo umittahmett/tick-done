@@ -44,3 +44,30 @@ export async function login({ email, password }) {
   
   return { user: userInfo, token }
 }
+
+export async function getMe(userId) {
+  const user = await User.findById(userId).select('-password')
+  if(!user) throw new AppError('User not found', 404)
+  
+  return user
+}
+
+export async function refreshToken(refreshToken) {
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET)
+    
+    const user = await User.findById(decoded.id).select('-password')
+    if(!user) throw new AppError('User not found', 404)
+    
+    const newToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+    
+    return { token: newToken, user }
+  } catch (err) {
+    if (err.name === 'JsonWebTokenError') {
+      throw new AppError('Invalid refresh token', 403)
+    } else if (err.name === 'TokenExpiredError') {
+      throw new AppError('Refresh token expired', 403)
+    }
+    throw new AppError('Token refresh failed', 500)
+  }
+}

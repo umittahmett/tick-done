@@ -28,13 +28,87 @@ export async function login(req, res) {
     res.cookie('token', data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    })
+
+    res.cookie('refreshToken', data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000
     })
     
     res.status(200).json({
       success: true,
       message: "Login successful",
+      data: { user: data.user }
+    })
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message })
+  }
+}
+
+export async function logout(req, res) {
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    })
+    
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    })
+    
+    res.status(200).json({
+      success: true,
+      message: "Logout successful"
+    })
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message })
+  }
+}
+
+export async function getMe(req, res) {
+  try {
+    const userData = await authServices.getMe(req.user.id)
+    
+    res.status(200).json({
+      success: true,
+      message: "User data retrieved successfully",
+      data: { user: userData }
+    })
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message })
+  }
+}
+
+export async function refreshToken(req, res) {
+  try {
+    const refreshToken = req.cookies.refreshToken
+    
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token not provided"
+      })
+    }
+    
+    const data = await authServices.refreshToken(refreshToken)
+    
+    res.cookie('token', data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    })
+    
+    res.status(200).json({
+      success: true,
+      message: "Token refreshed successfully",
       data: { user: data.user }
     })
   } catch (err) {
