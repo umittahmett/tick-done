@@ -115,3 +115,80 @@ export async function refreshToken(req, res) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }
 }
+
+export async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      })
+    }
+    
+    const result = await authServices.forgotPassword(email)
+    
+    res.status(200).json({
+      success: true,
+      message: result.message
+    })
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message })
+  }
+}
+
+export async function verifyOtp(req, res) {
+  try {
+    const { email, otp } = req.body
+    
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required"
+      })
+    }
+    
+    const result = await authServices.verifyOtp(email, otp)
+    
+    res.cookie('resetPasswordToken', result.resetToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 10 * 60 * 1000 // 10 min
+    })
+
+    res.status(200).json({
+      success: true,
+      message: result.message
+    })
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message })
+  }
+}
+
+export async function resetPassword(req, res) {
+  try {
+    const token = req.cookies.resetPasswordToken
+    const { email, newPassword, confirmPassword } = req.body
+
+    if (!token) return res.status(400).json({ message: 'Token is required' })
+    if (!newPassword || !confirmPassword || !email) {
+      return res.status(400).json({ message: 'Email, new password and confirm password are required' })
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'New passwords do not match' })
+    }
+    
+    const result = await authServices.resetPassword(token,email,newPassword,confirmPassword)
+    
+    res.status(200).json({
+      success: true,
+      message: result.message
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
