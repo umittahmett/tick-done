@@ -157,7 +157,6 @@ export async function verifyOtp(email, otp) {
   return { message: 'OTP verified successfully', resetToken }
 }
 
-
 export async function resetPassword(email, token, newPassword) {
   
   const user = await User.findOne({ email })
@@ -181,4 +180,3 @@ export async function resetPassword(email, token, newPassword) {
 
   return { message: 'Password has been reset successfully' }
 }
-// simdi bu yaptigimiz yontem sadece spa uygulamalari icin gecerli olucak 
