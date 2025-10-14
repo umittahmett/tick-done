@@ -170,18 +170,14 @@ export async function verifyOtp(req, res) {
 export async function resetPassword(req, res) {
   try {
     const token = req.cookies.resetPasswordToken
-    const { email, newPassword, confirmPassword } = req.body
+    const { email, newPassword } = req.body
 
     if (!token) return res.status(400).json({ message: 'Token is required' })
-    if (!newPassword || !confirmPassword || !email) {
-      return res.status(400).json({ message: 'Email, new password and confirm password are required' })
-    }
-
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'New passwords do not match' })
+    if (!newPassword || !email) {
+      return res.status(400).json({ message: 'Email and new password are required' })
     }
     
-    const result = await authServices.resetPassword(token,email,newPassword,confirmPassword)
+    const result = await authServices.resetPassword(email,token,newPassword)
     
     res.status(200).json({
       success: true,

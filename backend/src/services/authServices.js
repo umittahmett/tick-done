@@ -81,7 +81,7 @@ export async function forgotPassword(email) {
     if (user) {
       const otp = (await crypto.randomInt(0, 1000000)).toString().padStart(6, '0')
       
-      const otpHash = crypto.createHmac('sha256', APP_SECRET).update(`${otp}:${user._id.toString()}`).digest('hex')
+      const otpHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${otp}:${user._id.toString()}`).digest('hex')
       
       user.otpHash = otpHash
       user.otpExpires = new Date(Date.now() + 10 * 60 * 1000) // 10 min
@@ -131,13 +131,13 @@ export async function verifyOtp(email, otp) {
     throw new AppError('Invalid or expired OTP', 401)
   }
 
-  const incomingHash = crypto.createHmac('sha256', APP_SECRET).update(`${otp}:${user._id.toString()}`).digest()
+  const incomingHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${otp}:${user._id.toString()}`).digest()
   const storedHash = Buffer.from(user.otpHash, 'hex')
 
   if (incomingHash.length !== storedHash.length) {
     throw new AppError('Invalid or expired OTP', 401)
   }
-
+  
   if (!crypto.timingSafeEqual(incomingHash, storedHash)) {
     throw new AppError('Invalid or expired OTP', 401)
   }
@@ -146,7 +146,7 @@ export async function verifyOtp(email, otp) {
   user.otpExpires = null
 
   const resetToken = crypto.randomBytes(32).toString('hex')
-  const resetTokenHash = crypto.createHmac('sha256', APP_SECRET).update(`${resetToken}:${user._id.toString()}`).digest('hex')
+  const resetTokenHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${resetToken}:${user._id.toString()}`).digest('hex')
   const resetTokenExpire = new Date(Date.now() + 10 * 60 * 1000) // 10 min
 
   user.resetPasswordTokenHash = resetTokenHash
@@ -164,7 +164,7 @@ export async function resetPassword(email, token, newPassword) {
     throw new AppError('Invalid or expired reset token', 401)
   }
 
-  const incomingHash = crypto.createHmac('sha256', APP_SECRET).update(`${token}:${user._id.toString()}`).digest()
+  const incomingHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${token}:${user._id.toString()}`).digest()
   const storedHash = Buffer.from(user.resetPasswordTokenHash, 'hex')
 
   if (incomingHash.length !== storedHash.length || !crypto.timingSafeEqual(incomingHash, storedHash)) {
