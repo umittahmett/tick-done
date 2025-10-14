@@ -29,7 +29,7 @@ export default function ProjectPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login")
+      router.push("/auth/login")
     }
   }, [user, authLoading, router])
 

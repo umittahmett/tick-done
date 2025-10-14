@@ -87,6 +87,19 @@ class ApiClient {
     return data.data || data.user
   }
 
+
+  async verifyOtp(email: string, otp: string) {
+    const res = await fetch(`${API_URL}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+      body: JSON.stringify({ email, otp }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message || "Failed to verify OTP")
+    return data
+  }
+
   async forgotPassword(email: string) {
     const res = await fetch(`${API_URL}/auth/forgot-password`, {
       method: "POST",
@@ -99,12 +112,12 @@ class ApiClient {
     return data
   }
 
-  async resetPassword(token: string, password: string) {
+  async resetPassword(email: string, newPassword: string) {
     const res = await fetch(`${API_URL}/auth/reset-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: 'include',
-      body: JSON.stringify({ token, password }),
+      body: JSON.stringify({ email, newPassword }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || "Failed to reset password")

@@ -6,7 +6,6 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CheckCircle2, Users, Zap } from "lucide-react"
 import Link from "next/link"
-import { GoogleGenAI } from "@google/genai";
 
 export default function HomePage() {
   const { user, loading } = useAuth()
@@ -37,10 +36,10 @@ export default function HomePage() {
             <span className="text-xl font-semibold">TaskFlow</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button variant="ghost">Sign In</Button>
             </Link>
-            <Link href="/register">
+            <Link href="/auth/register">
               <Button>Get Started</Button>
             </Link>
           </div>
@@ -58,12 +57,12 @@ export default function HomePage() {
             TaskFlow.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
-            <Link href="/register">
+            <Link href="/auth/register">
               <Button size="lg" className="gap-2">
                 Start Free Trial <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button size="lg" variant="outline">
                 Sign In
               </Button>
