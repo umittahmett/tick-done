@@ -74,12 +74,12 @@ export async function logout(req, res) {
 
 export async function getMe(req, res) {
   try {
-    const userData = await authServices.getMe(req.user.id)
+    const user = await authServices.getMe(req.user.id)
     
     res.status(200).json({
       success: true,
       message: "User data retrieved successfully",
-      data: { user: userData }
+      data: user 
     })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
@@ -109,7 +109,7 @@ export async function refreshToken(req, res) {
     res.status(200).json({
       success: true,
       message: "Token refreshed successfully",
-      data: { user: data.user }
+      data: data.user 
     })
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
