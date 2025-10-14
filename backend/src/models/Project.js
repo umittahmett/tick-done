@@ -5,7 +5,7 @@ const projectSchema = new mongoose.Schema(
     name: { type: String, required: true },
     description: { type: String, required: false, default: 'No description' },
     creator: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
-    members: { type: Array, required: false, default: [] }
+    members: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }]
   },
   { timestamps: true }
 )
