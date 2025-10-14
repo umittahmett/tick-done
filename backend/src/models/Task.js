@@ -17,7 +17,7 @@ const taskSchema = new mongoose.Schema(
       default: 'medium'
     },
     dueDate: { type: Date, required: true },
-    assignments: { type: Array, required: true },
+    assignments: { type: Array, ref: 'User', required: true },
     creator: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
     project: { type: mongoose.Types.ObjectId, ref: 'Project', required: true }
   },
