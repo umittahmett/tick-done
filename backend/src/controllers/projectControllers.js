@@ -96,13 +96,13 @@ export async function updateProject(req, res) {
 export async function addMemberToProject(req, res) { 
   try {
     const { projectId } = req.params
-    const { memberId } = req.body
+    const { email } = req.body
 
-    if (!projectId || !memberId) {
+    if (!projectId || !email) {
       return res.status(400).json({ message: 'Project ID and Member ID are required' })
     }
 
-    const data = await projectServices.addMemberToProject({ projectId, memberId })
+    const data = await projectServices.addMemberToProject({ projectId, email })
     res.status(200).json({
       success: true,
       message: "Member added successfully",
@@ -116,13 +116,13 @@ export async function addMemberToProject(req, res) {
 export async function deleteMemberFromProject(req, res) { 
   try {
     const { projectId } = req.params
-    const { memberId } = req.body
+    const { email } = req.body
 
-    if (!projectId || !memberId) {
+    if (!projectId || !email) {
       return res.status(400).json({ message: 'Project ID and Member ID are required' })
     }
 
-    await projectServices.deleteMemberFromProject({ projectId, memberId })
+    await projectServices.deleteMemberFromProject({ projectId, email })
     res.status(200).json({
       success: true,
       message: "Member removed successfully"

@@ -7,10 +7,13 @@ import { AppError } from '../utils/appError.js'
 dotenv.config()
 
 export async function getProject(projectId) {
-  const project = await Project.findOne({ _id: projectId })
+  const project = await Project.findOne({ _id: projectId })  
+  .populate('creator', '_id fullname title email')
+  .populate('members', '_id fullname title email')
+  
   if(!project) throw new AppError('Project not found', 404)
 
-  return { project }
+  return project
 }
 
 export async function getUserProjects(userId) {
@@ -23,7 +26,7 @@ export async function getUserProjects(userId) {
   .populate('creator', '_id fullname title email')
   .populate('members', '_id fullname title email')
 
-  return { projects }
+  return projects 
 }
 
 export async function createProject({ name, description, creator }) {
@@ -33,7 +36,7 @@ export async function createProject({ name, description, creator }) {
   const project = new Project({ name, description, creator })
   await project.save()
 
-  return { project }
+  return project
 }
 
 export async function updateProject({ projectId, updateFields }) {
@@ -48,7 +51,7 @@ export async function updateProject({ projectId, updateFields }) {
   })
 
   await project.save()
-  return { project }
+  return project
 }
 
 export async function deleteProject(projectId) {
@@ -63,35 +66,35 @@ export async function deleteProject(projectId) {
 
   await project.deleteOne()
 
-  return { project }
+  return project
 }
 
-export async function addMemberToProject({ projectId, memberId }) {
+export async function addMemberToProject({ projectId, email }) {
   const project = await Project.findOne({ _id: projectId })
   if(!project) throw new AppError('Project not found', 404)
 
-  const user = await User.findOne({ _id: memberId })
+  const user = await User.findOne({ email })
   if(!user) throw new AppError('User not found', 404)
 
-  if(project.members.includes(memberId)) throw new AppError('User is already a member of this project', 409)
+  if(project.members.includes(user._id)) throw new AppError('User is already a member of this project', 409)
 
-  project.members.push(memberId)
+  project.members.push(user._id)
   await project.save()
 
-  return { project }
+  return project
 }
 
-export async function deleteMemberFromProject({ projectId, memberId }) { 
+export async function deleteMemberFromProject({ projectId, email }) { 
   const project = await Project.findOne({ _id: projectId })
   if(!project) throw new AppError('Project not found', 404)
 
-  const user = await User.findOne({ _id: memberId })
+  const user = await User.findOne({ email })
   if(!user) throw new AppError('User not found', 404)
 
-  if(!project.members.includes(memberId)) throw new AppError('User is not a member of this project', 400)
+  if(!project.members.includes(user._id)) throw new AppError('User is not a member of this project', 400)
 
-  project.members.pull(memberId)
+  project.members.pull(user._id)
   await project.save()
 
-  return { project }
+  return project
 }
