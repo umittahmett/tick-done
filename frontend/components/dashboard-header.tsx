@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Zap, LogOut, User } from "lucide-react"
 import Link from "next/link"
+import ThemeSwitcher  from "./ui/theme-switcher"
 
 export function DashboardHeader() {
   const { user, logout } = useAuth()
@@ -27,7 +28,7 @@ export function DashboardHeader() {
     "U"
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky bg-background top-0 z-50 border-b border-border">
       <div className="flex h-16 items-center justify-between px-6">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
@@ -37,6 +38,7 @@ export function DashboardHeader() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <ThemeSwitcher/>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">

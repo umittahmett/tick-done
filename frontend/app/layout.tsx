@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth-context"
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
 import "./globals.css"
+import { ThemeProvider } from "next-themes"
 
 export const metadata: Metadata = {
   title: "TaskFlow - Project Management",
@@ -20,14 +21,21 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <Suspense fallback={null}>
+        <ThemeProvider 
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <AuthProvider>
-            {children}
+            <Suspense fallback={null}>
+              {children}
+            </Suspense>
             <Toaster />
           </AuthProvider>
-        </Suspense>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
