@@ -3,6 +3,7 @@ import Project from '../models/Project.js'
 import dotenv from 'dotenv'
 import Task from '../models/Task.js'
 import { AppError } from '../utils/appError.js'
+import { sendNotification } from './notifications/notificationServices.js'
 
 dotenv.config()
 
@@ -80,6 +81,14 @@ export async function addMemberToProject({ projectId, email }) {
 
   project.members.push(user._id)
   await project.save()
+
+ await sendNotification({
+    channel: ['app', 'email'],
+    to: user,
+    subject: `Yeni Üye: ${user.fullname}`,
+    content: `Merhaba ${user.name}, "${project.name}" projesine üye olarak eklendi.`,
+    type: 'projectInvite'
+  });
 
   return project
 }
