@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import Task from '../models/Task.js'
 import { AppError } from '../utils/appError.js'
 import { sendNotification } from './notifications/notificationServices.js'
+import Invitation from '../models/Invitation.js'
+import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
@@ -70,23 +72,46 @@ export async function deleteProject(projectId) {
   return project
 }
 
-export async function addMemberToProject({ projectId, email }) {
+export async function addMemberToProject({ projectId, invitee, inviter }) {
   const project = await Project.findOne({ _id: projectId })
   if(!project) throw new AppError('Project not found', 404)
 
-  const user = await User.findOne({ email })
-  if(!user) throw new AppError('User not found', 404)
+  const inviterUser = await User.findOne({ email: inviter })
+  if(!inviterUser) throw new AppError('User not found', 404)
 
-  if(project.members.includes(user._id)) throw new AppError('User is already a member of this project', 409)
+  const inviteeUser = await User.findOne({ email: invitee })
+  if(!inviteeUser) throw new AppError('User not found', 404)
 
-  project.members.push(user._id)
-  await project.save()
+  if(project.members.includes(inviteeUser._id)) throw new AppError('User is already a member of this project', 409)
+  const hasInvited = await Invitation.findOne({ project: projectId, invitee, inviter, status: 'pending' })
+  if(hasInvited) throw new AppError('User has already been invited to this project', 409)
 
- await sendNotification({
-    channel: ['app', 'email'],
-    to: user,
-    subject: `Yeni Üye: ${user.fullname}`,
-    content: `Merhaba ${user.name}, "${project.name}" projesine üye olarak eklendi.`,
+  const token = jwt.sign({ projectId, invitee, inviter }, process.env.JWT_SECRET, { expiresIn: '7d' })
+  const invitation = new Invitation({ project: projectId, inviter, invitee, token, tokenExpiry: Date.now() + 7 * 24 * 60 * 60 * 1000 })
+  await invitation.save()
+
+  await sendNotification({
+    channel: ['email'],
+    to: inviteeUser,
+    subject: `${inviterUser.fullname} invited you to join project: ${project.name}`,
+    content: `
+    <div style="text-align: center; font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">Project Invitation</h2>
+        <p style="color: #34495e; margin-bottom: 25px; line-height: 1.5;">
+          Hi ${inviteeUser.fullname},<br>
+          <strong>${inviterUser.fullname}</strong> invited you to join project <strong>"${project.name}"</strong>.
+        </p>
+        <div style="margin-top: 20px; margin-left: auto; margin-right: auto;">
+          <a href="${process.env.FRONTEND_URL}/project-invitation?token=${token}&status=accept" 
+             style="background-color: #2ecc71; color: white; padding: 10px 25px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+            Accept
+          </a>
+          <a href="${process.env.FRONTEND_URL}/project-invitation?token=${token}&status=reject" 
+             style="background-color: #e74c3c; color: white; padding: 10px 25px; margin-left: 15px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+            Reject
+          </a>
+        </div>
+      </div>`,
     type: 'projectInvite'
   });
 
@@ -107,3 +132,51 @@ export async function deleteMemberFromProject({ projectId, email }) {
 
   return project
 }
+
+export const handleInvitation = async ({token, status}) => {
+  try {
+    const invitation = await Invitation.findOne({ token, status: 'pending' });
+    if (!invitation) {
+      throw new AppError('Invitation expired or already used', 404);
+    }
+
+    const [project, invitee] = await Promise.all([
+      Project.findOne({ _id: invitation.project }),
+      User.findOne({ email: invitation.invitee })
+    ]);
+
+    if (!project) throw new AppError('Project not found', 404);
+    if (!invitee) throw new AppError('User not found', 404);
+
+    if (status === 'accept') {
+      invitation.status = 'accepted';
+      project.members.push(invitee._id);
+      
+      await Promise.all([invitation.save(), project.save()]);
+
+      await sendNotification({
+        channel: ['app', 'email'],
+        to: invitee,
+        subject: `Welcome to ${project.name}`,
+        content: `
+          <div style="text-align: center; font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">Welcome</h2>
+            <p style="color: #34495e; margin-bottom: 25px; line-height: 1.5;">You have been added to project: ${project.name}</p>
+          </div>`,
+        type: 'generic'
+      });
+
+      return { message: 'Invitation successfully accepted.' };
+    } else if (status === 'reject') {
+      invitation.status = 'rejected';
+      await invitation.save();
+
+      return { message: 'Invitation successfully rejected.' };      
+    } else {
+      throw new AppError('Invalid operation type.', 400);
+    }
+
+  } catch (error) {
+    throw error;
+  }
+};

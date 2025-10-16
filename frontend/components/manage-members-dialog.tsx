@@ -33,7 +33,7 @@ export function ManageMembersDialog({ project, open, onOpenChange, onMembersUpda
     setLoading(true)
 
     try {
-      await api.addMemberToProject(project._id, email)
+      await api.addMemberToProject(project._id, email, user?.email)
       toast({
         title: "Member added",
         description: `${email} has been added to the project.`,

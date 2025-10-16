@@ -179,17 +179,29 @@ class ApiClient {
     return data
   }
 
-  async addMemberToProject(projectId: string, email: string) {
+  async addMemberToProject(projectId: string, invitee: string, inviter: string) {
     console.log('project id for adding member', projectId);
     
     const res = await fetch(`${API_URL}/projects/addMemberToProject/${projectId}`, {
       method: "POST",
       credentials: 'include',
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ invitee, inviter }),
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || "Failed to add member")
+    return data
+  }
+
+  async handleInvitation(token: string, status: string) {
+    const res = await fetch(`${API_URL}/projects/handleInvitation`, {
+      method: "POST",
+      credentials: 'include',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, status }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message || "Failed to handle invitation")
     return data
   }
 

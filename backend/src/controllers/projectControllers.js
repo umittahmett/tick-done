@@ -96,16 +96,16 @@ export async function updateProject(req, res) {
 export async function addMemberToProject(req, res) { 
   try {
     const { projectId } = req.params
-    const { email } = req.body
+    const { invitee, inviter } = req.body
 
-    if (!projectId || !email) {
+    if (!projectId || !invitee || !inviter) {
       return res.status(400).json({ message: 'Project ID and Member ID are required' })
     }
 
-    const data = await projectServices.addMemberToProject({ projectId, email })
+    const data = await projectServices.addMemberToProject({ projectId, invitee, inviter })
     res.status(200).json({
       success: true,
-      message: "Member added successfully",
+      message: "Invitation sent successfully",
       data: data
     })
   } catch (err) {
@@ -127,6 +127,30 @@ export async function deleteMemberFromProject(req, res) {
       success: true,
       message: "Member removed successfully"
     })
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ message: err.message })
+  }
+}
+
+export async function handleInvitation(req, res) { 
+  try {
+    const { status, token } = req.body
+    const allowedStatus = ['accept', 'reject'];
+
+    if (!token || !status) {
+      return res.status(400).json({ message: 'Token and Status are required' })
+    }
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value.' });
+    }
+
+    const data = await projectServices.handleInvitation({ token, status })
+
+    res.status(200).json({
+      success: true,
+      message: data.message,
+    })
+
   } catch (err) {
     res.status(err.statusCode || 500).json({ message: err.message })
   }

@@ -1,5 +1,5 @@
 import express from 'express'
-import { createProject, updateProject, deleteProject, getProject, getUserProjects, addMemberToProject, deleteMemberFromProject } from '../controllers/projectControllers.js'
+import { createProject, updateProject, deleteProject, getProject, getUserProjects, addMemberToProject, deleteMemberFromProject, handleInvitation } from '../controllers/projectControllers.js'
 import { auth } from '../middlewares/authMiddleware.js'
 import { isProjectCreator, isProjectMember } from '../middlewares/projectMiddleware.js'
 
@@ -12,5 +12,6 @@ router.get('/getProject/:projectId', auth, isProjectMember, getProject)
 router.get('/getUserProjects', auth, getUserProjects)
 router.post('/addMemberToProject/:projectId', auth, isProjectCreator, addMemberToProject)
 router.post('/deleteMemberFromProject/:projectId', auth, isProjectCreator, deleteMemberFromProject)
+router.post('/handleInvitation', auth, handleInvitation)
 
 export default router
