@@ -119,14 +119,6 @@ export async function refreshToken(req, res) {
 export async function forgotPassword(req, res) {
   try {
     const { email } = req.body
-    
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required"
-      })
-    }
-    
     const result = await authServices.forgotPassword(email)
     
     res.status(200).json({
@@ -141,14 +133,6 @@ export async function forgotPassword(req, res) {
 export async function verifyOtp(req, res) {
   try {
     const { email, otp } = req.body
-    
-    if (!email || !otp) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and OTP are required"
-      })
-    }
-    
     const result = await authServices.verifyOtp(email, otp)
     
     res.cookie('resetPasswordToken', result.resetToken, {
@@ -171,12 +155,6 @@ export async function resetPassword(req, res) {
   try {
     const token = req.cookies.resetPasswordToken
     const { email, newPassword } = req.body
-
-    if (!token) return res.status(400).json({ message: 'Token is required' })
-    if (!newPassword || !email) {
-      return res.status(400).json({ message: 'Email and new password are required' })
-    }
-    
     const result = await authServices.resetPassword(email,token,newPassword)
     
     res.status(200).json({
