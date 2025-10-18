@@ -1,12 +1,13 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { api, type User } from "./api"
+import { api, type User, type Notification } from "./api"
 import { useRouter } from "next/navigation"
 
 interface AuthContextType {
   user: User | null
   loading: boolean
+  notifications: Notification[]
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, fullname?: string, title?: string) => Promise<void>
   logout: () => Promise<void>
@@ -18,10 +19,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const router = useRouter()
 
   useEffect(() => {
     checkAuth()
+    fetchNotifications()
   }, [])
 
   async function checkAuth() {
@@ -68,8 +71,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function fetchNotifications() {
+    try {
+      const userNotifications = await api.getUserNotifications(undefined, 'app', 12);
+      setNotifications(userNotifications);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, notifications, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

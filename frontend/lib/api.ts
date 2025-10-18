@@ -31,6 +31,18 @@ export interface Task {
   updatedAt: string
 }
 
+export interface Notification {
+  _id: string
+  user: string
+  type: "projectInvite" | "taskAssignment" | "taskDue" | "generic"
+  subject: string
+  content: string
+  channel: "app" | "email"
+  read: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface PopulatedProject extends Omit<Project, 'creator' | 'members'> {
   creator: User
   members: User[]
@@ -86,7 +98,6 @@ class ApiClient {
     if (!res.ok) throw new Error(data.message || "Failed to get user")
     return data.data || data.user
   }
-
 
   async verifyOtp(email: string, otp: string) {
     const res = await fetch(`${API_URL}/auth/verify-otp`, {
@@ -283,6 +294,31 @@ class ApiClient {
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || "Failed to delete task")
     return data
+  }
+
+  // Notification endpoints
+  async getUserNotifications(
+    type?: string,
+    channel?: "app" | "email",
+    limit: number = 10
+  ): Promise<Notification[]> {
+    const params = new URLSearchParams();
+    
+    if (type) params.append('type', type);
+    if (channel) params.append('channel', channel);
+    if (limit) params.append('limit', limit.toString());
+
+    const queryString = params.toString();
+    const url = `${API_URL}/notifications/getUserNotifications${queryString ? `?${queryString}` : ''}`;
+    
+    const res = await fetch(url, {
+      method: "GET",
+      credentials: 'include',
+    })
+
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message || "Failed to get notifications")
+    return data.data
   }
 }
 

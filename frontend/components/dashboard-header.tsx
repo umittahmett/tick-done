@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Zap, LogOut, User } from "lucide-react"
 import Link from "next/link"
 import ThemeSwitcher  from "./ui/theme-switcher"
+import { NotificationsPopup } from "./notifications-popup"
 
 export function DashboardHeader() {
   const { user, logout } = useAuth()
@@ -38,6 +39,7 @@ export function DashboardHeader() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <NotificationsPopup/>
           <ThemeSwitcher/>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
