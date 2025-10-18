@@ -68,3 +68,32 @@ export async function sendNotification({ channel, to, subject, content, type = '
     }
   }
 }
+
+
+export async function getUserNotifications(userId, queryOptions = {}) {
+  const { 
+    limit = 10,     
+    status,         
+    type,
+    channel
+  } = queryOptions;
+  const query = { userId: userId }; 
+
+  if (status) {
+    query.read = status === 'read' ? true : false;
+  }
+
+  if (type) {
+    query.type = type;
+  }
+
+  if (channel) {
+    query.channel = channel;
+  }
+  
+  const notifications = await Notification.find(query) 
+    .sort({ createdAt: -1 }) 
+    .limit(limit);        
+    
+  return notifications;
+}

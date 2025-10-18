@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import authRoutes from './routes/authRoutes.js'
 import taskRoutes from './routes/taskRoutes.js'
 import projectRoutes from './routes/projectRoutes.js'
+import notificationRoutes from './routes/notificationRoutes.js'
 import { connectDB } from "./config/db.js"
 import dotenv from 'dotenv'
 import { errorHandler } from './middlewares/errorHandler.js'
@@ -33,6 +34,7 @@ const authApiLimiter = rateLimit({
 app.use('/api/auth', authApiLimiter, authRoutes)
 app.use('/api/tasks', apiLimiter, taskRoutes)
 app.use('/api/projects', apiLimiter, projectRoutes)
+app.use('/api/notifications', apiLimiter, notificationRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'Task Manager API running ✅' })
