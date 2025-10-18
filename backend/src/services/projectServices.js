@@ -94,7 +94,7 @@ export async function addMemberToProject({ projectId, invitee, inviter }) {
     channel: ['email'],
     to: inviteeUser,
     subject: `${inviterUser.fullname} invited you to join project: ${project.name}`,
-    content: `
+    emailContent: `
     <div style="text-align: center; font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
         <h2 style="color: #2c3e50; margin-bottom: 20px;">Project Invitation</h2>
         <p style="color: #34495e; margin-bottom: 25px; line-height: 1.5;">
@@ -158,11 +158,12 @@ export const handleInvitation = async ({token, status}) => {
         channel: ['app', 'email'],
         to: invitee,
         subject: `Welcome to ${project.name}`,
-        content: `
+        emailContent: `
           <div style="text-align: center; font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">Welcome</h2>
             <p style="color: #34495e; margin-bottom: 25px; line-height: 1.5;">You have been added to project: ${project.name}</p>
           </div>`,
+        appContent: `Hi ${invitee.fullname}, you have been added to project "${project.name}"`,
         type: 'generic'
       });
 

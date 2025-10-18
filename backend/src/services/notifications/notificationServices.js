@@ -6,8 +6,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export async function sendNotification({ channel, to, subject, content, type = 'generic' }) {
-  if (!channel || !to || !subject || !content) {
+export async function sendNotification({ channel, to, subject, emailContent, appContent, type = 'generic' }) {
+  if (!channel || !to || !subject || (!emailContent && !appContent)) {
     console.error('sendNotification için gerekli parametreler eksik.');
     return;
   }
@@ -21,7 +21,6 @@ export async function sendNotification({ channel, to, subject, content, type = '
     user: to._id,
     type,
     subject,
-    content,
   };
 
   for (const currentChannel of channelsToSend) {
@@ -29,6 +28,7 @@ export async function sendNotification({ channel, to, subject, content, type = '
       const notification = new Notification({
         ...basePayload,
         channel: 'app',
+        content: appContent,
       });
       await notification.save();
       console.log('App notification saved successfully');
@@ -49,7 +49,7 @@ export async function sendNotification({ channel, to, subject, content, type = '
           from: process.env.DEFAULT_SENDER_EMAIL,
           to: user.email,
           subject: subject,
-          html: content,
+          html: emailContent,
         });
         
         console.log('Email sent successfully');
@@ -58,6 +58,7 @@ export async function sendNotification({ channel, to, subject, content, type = '
           ...basePayload,
           channel: 'email',
           read: true,
+          content: emailContent,
         });
         await notification.save();
         console.log('Email notification log saved successfully');
@@ -69,7 +70,6 @@ export async function sendNotification({ channel, to, subject, content, type = '
   }
 }
 
-
 export async function getUserNotifications(userId, queryOptions = {}) {
   const { 
     limit = 10,     
@@ -77,7 +77,7 @@ export async function getUserNotifications(userId, queryOptions = {}) {
     type,
     channel
   } = queryOptions;
-  const query = { userId: userId }; 
+  const query = { user: userId }; 
 
   if (status) {
     query.read = status === 'read' ? true : false;
@@ -91,9 +91,12 @@ export async function getUserNotifications(userId, queryOptions = {}) {
     query.channel = channel;
   }
   
+
+  
   const notifications = await Notification.find(query) 
-    .sort({ createdAt: -1 }) 
-    .limit(limit);        
-    
+  .sort({ createdAt: -1 }) 
+  .limit(limit);        
+  
+  console.log('notifications', notifications);
   return notifications;
 }
