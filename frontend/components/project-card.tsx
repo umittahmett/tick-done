@@ -7,6 +7,7 @@ import { MoreVertical, Users, Calendar } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { useRouter } from "next/navigation"
 
 interface ProjectCardProps {
   project: Project
@@ -15,14 +16,13 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, onDelete, onEdit }: ProjectCardProps) {
+  const router = useRouter()
   return (
-    <Card className="group transition-colors hover:border-accent/50">
+    <Card onClick={() => router.push(`/dashboard/projects/${project._id}`)} className="cursor-pointer group transition-colors hover:border-accent/50">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <Link href={`/projects/${project._id}`}>
-              <CardTitle className="cursor-pointer hover:text-accent">{project.name}</CardTitle>
-            </Link>
+            <CardTitle className="duration-200 group-hover:text-accent">{project.name}</CardTitle>
             <CardDescription className="mt-1.5">{project.description || "No description"}</CardDescription>
           </div>
           <DropdownMenu>
