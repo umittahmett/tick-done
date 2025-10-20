@@ -33,7 +33,7 @@ export function ProjectCard({ project, onDelete, onEdit }: ProjectCardProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(project)}>Edit Project</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(project._id)} className="text-destructive">
+              <DropdownMenuItem onClick={() => onDelete(project._id)} className="!text-destructive">
                 Delete Project
               </DropdownMenuItem>
             </DropdownMenuContent>
