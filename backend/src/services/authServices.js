@@ -161,6 +161,9 @@ export async function resetPassword(email, token, newPassword) {
   
   const user = await User.findOne({ email })
   if (!user || !user.resetPasswordTokenHash || !user.resetPasswordTokenExpires || user.resetPasswordTokenExpires < Date.now()) {
+    user.resetPasswordTokenHash = null
+    user.resetPasswordTokenExpires = null
+    await user.save()
     throw new AppError('Invalid or expired reset token', 401)
   }
 
@@ -168,6 +171,9 @@ export async function resetPassword(email, token, newPassword) {
   const storedHash = Buffer.from(user.resetPasswordTokenHash, 'hex')
 
   if (incomingHash.length !== storedHash.length || !crypto.timingSafeEqual(incomingHash, storedHash)) {
+    user.resetPasswordTokenHash = null
+    user.resetPasswordTokenExpires = null
+    await user.save()
     throw new AppError('Invalid or expired reset token', 401)
   }
 
