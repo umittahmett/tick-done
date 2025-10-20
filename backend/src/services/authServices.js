@@ -8,50 +8,84 @@ import { createTransport } from 'nodemailer'
 dotenv.config()
 
 export async function register({ fullname, title, email, password }) {
-  const userExists = await User.findOne({ email })
-  if(userExists) throw new AppError('User already exists', 409)
 
-  const user = new User({ fullname, title, email, password })
-  await user.save()
-
-  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+  try {
+    const userExists = await User.findOne({ email })
+    if(userExists) throw new AppError('User already exists', 409)
   
-  const userInfo = {
-    id: user._id,
-    email: user.email,
-    fullname: user.fullname,
-    title: user.title,
-    createdAt: user.createdAt
+    const user = new User({ fullname, title, email, password })
+    await user.save()
+  
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+    
+    const userInfo = {
+      id: user._id,
+      email: user.email,
+      fullname: user.fullname,
+      title: user.title,
+      createdAt: user.createdAt
+    }
+    
+    return { user: userInfo, token }
+    
+  } catch (error) {
+    console.error("Service Error:", error);
+
+    if (!error.isOperational) {
+        throw new AppError('Internal server error', 500); 
+    }
+    
+    throw error;
   }
-  
-  return { user: userInfo, token }
 }
 
 export async function login({ email, password }) {
-  const user = await User.findOne({ email })
-  if(!user) throw new AppError('User not found', 404)
-
-  const valid = await user.comparePassword(password)
-  if(!valid) throw new AppError('Wrong password', 401)
-
-  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+  try {
+    const user = await User.findOne({ email })
+    if(!user) throw new AppError('User not found', 404)
   
-  const userInfo = {
-    id: user._id,
-    email: user.email,
-    fullname: user.fullname,
-    title: user.title,
-    createdAt: user.createdAt
+    const valid = await user.comparePassword(password)
+    if(!valid) throw new AppError('Wrong password', 401)
+  
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+    
+    const userInfo = {
+      id: user._id,
+      email: user.email,
+      fullname: user.fullname,
+      title: user.title,
+      createdAt: user.createdAt
+    }
+    
+    return { user: userInfo, token }
+
+  } catch (error) {
+    console.error("Service Error:", error);
+
+    if (!error.isOperational) {
+        throw new AppError('Internal server error', 500); 
+    }
+    
+    throw error;
   }
-  
-  return { user: userInfo, token }
 }
 
 export async function getMe(userId) {
-  const user = await User.findById(userId).select('-password')
-  if(!user) throw new AppError('User not found', 404)
-  
-  return user
+  try {
+    const user = await User.findById(userId).select('-password')
+    if(!user) throw new AppError('User not found', 404)
+    
+    return user
+
+  } catch (error) {
+    console.error("Service Error:", error);
+
+    if (!error.isOperational) {
+      throw new AppError('Internal server error', 500); 
+    }
+    
+    throw error;
+  }
 }
 
 export async function refreshToken(refreshToken) {
@@ -65,6 +99,7 @@ export async function refreshToken(refreshToken) {
     
     return { token: newToken, user }
   } catch (err) {
+    console.error("Service Error:", err);
     if (err.name === 'JsonWebTokenError') {
       throw new AppError('Invalid refresh token', 403)
     } else if (err.name === 'TokenExpiredError') {
@@ -116,73 +151,99 @@ export async function forgotPassword(email) {
     
     return { message: 'If an account with this email exists, a password reset code has been sent' }
   } catch (err) {
+    console.error("Service Error:", err);
+    if (!err.isOperational) {
+      throw new AppError('Internal server error', 500); 
+    }
     throw err
   }
 }
 
 export async function verifyOtp(email, otp) {
-  const user = await User.findOne({ email })
+  try {
+    const user = await User.findOne({ email })
+    
+    if (!user || !user.otpHash || !user.otpExpires) {
+      throw new AppError('Invalid or expired OTP', 401)
+    }
   
-  if (!user || !user.otpHash || !user.otpExpires) {
-    throw new AppError('Invalid or expired OTP', 401)
-  }
-
-  if (user.otpExpires < Date.now()) {
-    throw new AppError('Invalid or expired OTP', 401)
-  }
-
-  const incomingHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${otp}:${user._id.toString()}`).digest()
-  const storedHash = Buffer.from(user.otpHash, 'hex')
-
-  if (incomingHash.length !== storedHash.length) {
-    throw new AppError('Invalid or expired OTP', 401)
-  }
+    if (user.otpExpires < Date.now()) {
+      throw new AppError('Invalid or expired OTP', 401)
+    }
   
-  if (!crypto.timingSafeEqual(incomingHash, storedHash)) {
-    throw new AppError('Invalid or expired OTP', 401)
+    const incomingHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${otp}:${user._id.toString()}`).digest()
+    const storedHash = Buffer.from(user.otpHash, 'hex')
+  
+    if (incomingHash.length !== storedHash.length) {
+      throw new AppError('Invalid or expired OTP', 401)
+    }
+    
+    if (!crypto.timingSafeEqual(incomingHash, storedHash)) {
+      throw new AppError('Invalid or expired OTP', 401)
+    }
+  
+    user.otpHash = null
+    user.otpExpires = null
+  
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const resetTokenHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${resetToken}:${user._id.toString()}`).digest('hex')
+    const resetTokenExpire = new Date(Date.now() + 10 * 60 * 1000) // 10 min
+  
+    user.resetPasswordTokenHash = resetTokenHash
+    user.resetPasswordTokenExpires = resetTokenExpire
+  
+    await user.save()
+  
+    return { message: 'OTP verified successfully', resetToken }
+
+  } catch (error) {
+    console.error("Service Error:", error);
+
+    if (!error.isOperational) {
+      throw new AppError('Internal server error', 500); 
+    }
+    
+    throw error;
   }
-
-  user.otpHash = null
-  user.otpExpires = null
-
-  const resetToken = crypto.randomBytes(32).toString('hex')
-  const resetTokenHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${resetToken}:${user._id.toString()}`).digest('hex')
-  const resetTokenExpire = new Date(Date.now() + 10 * 60 * 1000) // 10 min
-
-  user.resetPasswordTokenHash = resetTokenHash
-  user.resetPasswordTokenExpires = resetTokenExpire
-
-  await user.save()
-
-  return { message: 'OTP verified successfully', resetToken }
 }
 
 export async function resetPassword(email, token, newPassword) {
+  try {
+    const user = await User.findOne({ email })
+
+    if (!user || !user.resetPasswordTokenHash || !user.resetPasswordTokenExpires || user.resetPasswordTokenExpires < Date.now()) {
+      user.resetPasswordTokenHash = null
+      user.resetPasswordTokenExpires = null
+      await user.save()
+      throw new AppError('Invalid or expired reset token', 401)
+    }
   
-  const user = await User.findOne({ email })
-  if (!user || !user.resetPasswordTokenHash || !user.resetPasswordTokenExpires || user.resetPasswordTokenExpires < Date.now()) {
+    const incomingHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${token}:${user._id.toString()}`).digest()
+    const storedHash = Buffer.from(user.resetPasswordTokenHash, 'hex')
+  
+    if (incomingHash.length !== storedHash.length || !crypto.timingSafeEqual(incomingHash, storedHash)) {
+      user.resetPasswordTokenHash = null
+      user.resetPasswordTokenExpires = null
+      await user.save()
+      throw new AppError('Invalid or expired reset token', 401)
+    }
+  
+    user.password = newPassword
+  
     user.resetPasswordTokenHash = null
     user.resetPasswordTokenExpires = null
+  
     await user.save()
-    throw new AppError('Invalid or expired reset token', 401)
+  
+    return { message: 'Password has been reset successfully' }
+  } catch (error) {
+    console.error("Service Error:", error);
+
+    if (!error.isOperational) {
+        throw new AppError('Internal server error', 500); 
+    }
+    
+    throw error;
   }
-
-  const incomingHash = crypto.createHmac('sha256', process.env.APP_SECRET).update(`${token}:${user._id.toString()}`).digest()
-  const storedHash = Buffer.from(user.resetPasswordTokenHash, 'hex')
-
-  if (incomingHash.length !== storedHash.length || !crypto.timingSafeEqual(incomingHash, storedHash)) {
-    user.resetPasswordTokenHash = null
-    user.resetPasswordTokenExpires = null
-    await user.save()
-    throw new AppError('Invalid or expired reset token', 401)
-  }
-
-  user.password = newPassword
-
-  user.resetPasswordTokenHash = null
-  user.resetPasswordTokenExpires = null
-
-  await user.save()
-
-  return { message: 'Password has been reset successfully' }
+  
 }
