@@ -92,8 +92,6 @@ export default function ProjectPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
       <main className="mx-auto max-w-[1600px] px-6 py-8">
         <div className="mb-8">
           <Link href="/dashboard">
