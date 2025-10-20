@@ -24,8 +24,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     checkAuth()
-    fetchNotifications()
   }, [])
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [user])
 
   async function checkAuth() {
     try {
