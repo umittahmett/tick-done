@@ -57,13 +57,15 @@ export function DashboardHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                Profile
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => logout()}>
-                <LogOut className="mr-2 h-4 w-4" />
+              <DropdownMenuItem className="!text-destructive" onClick={() => logout()}>
+                <LogOut className="mr-2 h-4 w-4 !text-destructive" />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>
