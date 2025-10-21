@@ -11,7 +11,7 @@ export async function getProject(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -24,7 +24,7 @@ export async function getUserProjects(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
   
@@ -40,7 +40,7 @@ export async function createProject(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -54,7 +54,7 @@ export async function deleteProject(req, res) {
       message: "Project deleted successfully"
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -70,7 +70,7 @@ export async function updateProject(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -86,7 +86,7 @@ export async function addMemberToProject(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -101,7 +101,7 @@ export async function deleteMemberFromProject(req, res) {
       message: "Member removed successfully"
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -116,6 +116,6 @@ export async function handleInvitation(req, res) {
     })
 
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }

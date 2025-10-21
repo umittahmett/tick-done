@@ -14,7 +14,7 @@ export async function createTask(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -29,7 +29,7 @@ export async function getUserTasks(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -43,7 +43,7 @@ export async function getAllProjectTasks(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -57,7 +57,7 @@ export async function getTask(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -73,7 +73,7 @@ export async function updateTask(req, res) {
       data: data
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -87,6 +87,6 @@ export async function deleteTask(req, res) {
       message: "Task deleted successfully"
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
