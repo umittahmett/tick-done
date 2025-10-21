@@ -16,7 +16,7 @@ export async function register(req, res) {
       data: { user: data.user }
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -32,7 +32,7 @@ export async function login(req, res) {
       maxAge: 24 * 60 * 60 * 1000
     })
 
-    res.cookie('refreshToken', data.token, {
+    res.cookie('refreshToken', data.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
@@ -45,7 +45,7 @@ export async function login(req, res) {
       data: { user: data.user }
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -68,7 +68,7 @@ export async function logout(req, res) {
       message: "Logout successful"
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -82,7 +82,7 @@ export async function getMe(req, res) {
       data: user 
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -112,7 +112,7 @@ export async function refreshToken(req, res) {
       data: data.user 
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -126,7 +126,7 @@ export async function forgotPassword(req, res) {
       message: result.message
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 
@@ -147,7 +147,7 @@ export async function verifyOtp(req, res) {
       message: result.message
     })
   } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message })
+    res.status(err.status || 500).json({ message: err.message })
   }
 }
 

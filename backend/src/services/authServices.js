@@ -16,7 +16,8 @@ export async function register({ fullname, title, email, password }) {
     const user = new User({ fullname, title, email, password })
     await user.save()
   
-    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "15m" })
+    const refreshToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "14d" })
     
     const userInfo = {
       id: user._id,
@@ -26,8 +27,8 @@ export async function register({ fullname, title, email, password }) {
       createdAt: user.createdAt
     }
     
-    return { user: userInfo, token }
-    
+    return { user: userInfo, token, refreshToken }
+
   } catch (error) {
     console.error("Service Error:", error);
 
@@ -47,7 +48,8 @@ export async function login({ email, password }) {
     const valid = await user.comparePassword(password)
     if(!valid) throw new AppError('Wrong password', 401)
   
-    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "15m" })
+    const refreshToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "14d" })
     
     const userInfo = {
       id: user._id,
@@ -57,7 +59,7 @@ export async function login({ email, password }) {
       createdAt: user.createdAt
     }
     
-    return { user: userInfo, token }
+    return { user: userInfo, token, refreshToken }
 
   } catch (error) {
     console.error("Service Error:", error);
@@ -95,7 +97,7 @@ export async function refreshToken(refreshToken) {
     const user = await User.findById(decoded.id).select('-password')
     if(!user) throw new AppError('User not found', 404)
     
-    const newToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "24h" })
+    const newToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "15m" })
     
     return { token: newToken, user }
   } catch (err) {
