@@ -16,6 +16,7 @@ export function auth(req, res, next) {
     req.user = decoded
     next()
   } catch (err) {
+    console.log(err)
     if (err.name === 'JsonWebTokenError') {
       next(new AppError('Invalid token', 403))
     } else if (err.name === 'TokenExpiredError') {
