@@ -32,11 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function checkAuth() {
     try {
-      // HTTP-only cookie kullandığımız için direkt getMe API'sini çağır
-      const userData = await api.getMe()
-      setUser(userData)
+      const response = await api.getMe()
+      setUser(response.data)
     } catch (error) {
-      // Eğer getMe başarısız olursa kullanıcı giriş yapmamış demektir
       setUser(null)
     } finally {
       setLoading(false)
@@ -45,17 +43,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     const loginResponse = await api.login(email, password)
-    // Login başarılı olduktan sonra kullanıcı bilgilerini al
-    const userData = await api.getMe()
-    setUser(userData)
+    const response = await api.getMe()
+    setUser(response.data)
     router.push("/dashboard")
   }
 
   async function register(email: string, password: string, fullname?: string, title?: string) {
     await api.register(email, password, fullname, title)
-    // Register başarılı olduktan sonra kullanıcı bilgilerini al
-    const userData = await api.getMe()
-    setUser(userData)
+    const response = await api.getMe()
+    setUser(response.data)
     router.push("/dashboard")
   }
 
@@ -67,8 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function refreshUser() {
     try {
-      const userData = await api.getMe()
-      setUser(userData)
+      const response = await api.getMe()
+      setUser(response.data)
     } catch (error) {
       console.error("Failed to refresh user:", error)
     }

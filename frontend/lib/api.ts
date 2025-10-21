@@ -1,5 +1,13 @@
+import axiosClient from "./apiClient"
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
 
+
+export class ApiError extends Error {
+  constructor(public message: string, public status: number) {
+    super(message)
+  }
+}
 export interface User {
   _id: string
   email: string
@@ -80,23 +88,23 @@ class ApiClient {
   }
 
   async logout() {
-    const res = await fetch(`${API_URL}/auth/logout`, {
+    const res = await axiosClient.post(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: 'include',
       headers: { "Content-Type": "application/json" },
     })
-    return res.ok
+    return res.data
   }
 
-  async getMe(): Promise<User> {
-    const res = await fetch(`${API_URL}/auth/me`, {
+  async getMe(): Promise<{ data: User, message: string, success: boolean }> {
+    const res = await axiosClient.post(`${API_URL}/auth/me`, {
       method: "POST",
       credentials: 'include',
       headers: { "Content-Type": "application/json" },
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get user")
-    return data.data || data.user
+    
+    if (!res.data.success) throw new ApiError(res.data.message || "Failed to get user", res.data.error.status)
+    return res.data
   }
 
   async verifyOtp(email: string, otp: string) {
@@ -135,164 +143,133 @@ class ApiClient {
     return data
   }
 
+  // async refreshToken() {
+  //   const res = await fetch(`${API_URL}/auth/refresh-token`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     credentials: 'include',
+  //   })
+  //   const data = await res.json()
+  //   if (!res.ok) throw new Error(data.message || "Failed to refresh token")
+  //   return data
+  // }
+
   // Project endpoints
   async createProject(name: string, description?: string): Promise<Project> {
-    const res = await fetch(`${API_URL}/projects/createProject`, {
-      method: "POST",
-      credentials: 'include',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description }),
+    const res = await axiosClient.post(`${API_URL}/projects/createProject`, {
+      name,
+      description,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to create project")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to create project")
     return data.data
   }
 
   async getUserProjects(): Promise<Project[]> {
-    const res = await fetch(`${API_URL}/projects/getUserProjects`, {
-      method: "GET",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get projects")
+    const res = await axiosClient.get(`${API_URL}/projects/getUserProjects`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get projects")
     return data.data
   }
 
   async getProject(projectId: string): Promise<PopulatedProject> {
-    const res = await fetch(`${API_URL}/projects/getProject/${projectId}`, {
-      method: "GET",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get project")
+    const res = await axiosClient.get(`${API_URL}/projects/getProject/${projectId}`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get project")
     return data.data
   }
 
   async updateProject(projectId: string, updates: Partial<Project>): Promise<Project> {
-    const res = await fetch(`${API_URL}/projects/updateProject/${projectId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: 'include',
-      body: JSON.stringify(updates),
+    const res = await axiosClient.put(`${API_URL}/projects/updateProject/${projectId}`, {
+      updates,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to update project")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to update project")
     return data.data
   }
 
   async deleteProject(projectId: string) {
-    const res = await fetch(`${API_URL}/projects/deleteProject/${projectId}`, {
-      method: "DELETE",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to delete project")
+    const res = await axiosClient.delete(`${API_URL}/projects/deleteProject/${projectId}`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to delete project")
     return data
   }
 
   async addMemberToProject(projectId: string, invitee: string, inviter: string) {
     console.log('project id for adding member', projectId);
     
-    const res = await fetch(`${API_URL}/projects/addMemberToProject/${projectId}`, {
-      method: "POST",
-      credentials: 'include',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ invitee, inviter }),
+    const res = await axiosClient.post(`${API_URL}/projects/addMemberToProject/${projectId}`, {
+      invitee,
+      inviter,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to add member")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to add member")
     return data
   }
 
   async handleInvitation(token: string, status: string) {
-    const res = await fetch(`${API_URL}/projects/handleInvitation`, {
-      method: "POST",
-      credentials: 'include',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, status }),
+    const res = await axiosClient.post(`${API_URL}/projects/handleInvitation`, {
+      token,
+      status,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to handle invitation")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to handle invitation")
     return data
   }
 
   async deleteMemberFromProject(projectId: string, email: string) {
-    const res = await fetch(`${API_URL}/projects/deleteMemberFromProject/${projectId}`, {
-      method: "POST",
-      credentials: 'include',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+    const res = await axiosClient.post(`${API_URL}/projects/deleteMemberFromProject/${projectId}`, {
+      email,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to remove member")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to remove member")
     return data
   }
 
   // Task endpoints
   async createTask(projectId: string, task: Partial<Task>): Promise<Task> {
-    const res = await fetch(`${API_URL}/tasks/createTask/${projectId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: 'include',
-      body: JSON.stringify(task),
+    const res = await axiosClient.post(`${API_URL}/tasks/createTask/${projectId}`, {
+      task,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to create task")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to create task")
     return data.data
   }
 
   async getAllProjectTasks(projectId: string): Promise<PopulatedTask[]> {
-    const res = await fetch(`${API_URL}/tasks/getAllProjectTasks/${projectId}`, {
-      method: "GET",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get tasks")
+    const res = await axiosClient.get(`${API_URL}/tasks/getAllProjectTasks/${projectId}`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get tasks")
     return data.data
   }
 
   async getUserTasks(projectId: string): Promise<Task[]> {
-    const res = await fetch(`${API_URL}/tasks/getUserTasks/${projectId}`, {
-      method: "GET",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get user tasks")
+    const res = await axiosClient.get(`${API_URL}/tasks/getUserTasks/${projectId}`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get user tasks")
     return data.data
   }
 
   async getTask(taskId: string): Promise<Task> {
-    const res = await fetch(`${API_URL}/tasks/getTask/${taskId}`, {
-      method: "GET",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get task")
+    const res = await axiosClient.get(`${API_URL}/tasks/getTask/${taskId}`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get task")
     return data.data
   }
 
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task> {
-    const res = await fetch(`${API_URL}/tasks/updateTask/${taskId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: 'include',
-      body: JSON.stringify(updates),
+    const res = await axiosClient.put(`${API_URL}/tasks/updateTask/${taskId}`, {
+      updates,
     })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to update task")
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to update task")
     return data.data
   }
 
   async deleteTask(taskId: string) {
-
-    console.log('received taskId', taskId);
-    
-    const res = await fetch(`${API_URL}/tasks/deleteTask/${taskId}`, {
-      method: "DELETE",
-      credentials: 'include',
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to delete task")
+    const res = await axiosClient.delete(`${API_URL}/tasks/deleteTask/${taskId}`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to delete task")
     return data
   }
 
@@ -311,13 +288,9 @@ class ApiClient {
     const queryString = params.toString();
     const url = `${API_URL}/notifications/getUserNotifications${queryString ? `?${queryString}` : ''}`;
     
-    const res = await fetch(url, {
-      method: "GET",
-      credentials: 'include',
-    })
-
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.message || "Failed to get notifications")
+    const res = await axiosClient.get(url)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get notifications")
     return data.data
   }
 }

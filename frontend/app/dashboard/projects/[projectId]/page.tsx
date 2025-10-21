@@ -40,21 +40,31 @@ export default function ProjectPage() {
   }, [user, projectId])
 
   async function loadProjectData() {
+    setLoading(true); 
     try {
-      const [projectData, tasksData] = await Promise.all([api.getProject(projectId), api.getAllProjectTasks(projectId)])
-      console.log('projecte data',projectData );
+      const [projectResponse, tasksResponse] = await Promise.all([
+        api.getProject(projectId), 
+        api.getAllProjectTasks(projectId)
+      ]);
       
-      setProject(projectData)
-      setTasks(tasksData)
+      const projectData = projectResponse;
+      const tasksData = tasksResponse;
+      
+      setProject(projectData);
+      setTasks(tasksData);
+
     } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "An unknown error occurred.";
+
       toast({
-        title: "Failed to load project",
-        description: error.message,
+        title: "Project Load Failed",
+        description: errorMessage,
         variant: "destructive",
-      })
-      router.push("/dashboard")
+      });
+      router.push("/dashboard"); 
+
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 

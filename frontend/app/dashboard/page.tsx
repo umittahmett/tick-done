@@ -36,6 +36,7 @@ export default function DashboardPage() {
       const data = await api.getUserProjects()
       setProjects(data)
     } catch (error: any) {
+      setProjects([])
       toast({
         title: "Failed to load projects",
         description: error.message,
