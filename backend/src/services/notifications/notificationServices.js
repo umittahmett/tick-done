@@ -31,7 +31,6 @@ export async function sendNotification({ channel, to, subject, emailContent, app
         content: appContent,
       });
       await notification.save();
-      console.log('App notification saved successfully');
     } 
     else if (currentChannel === 'email') {
       try {
@@ -52,8 +51,6 @@ export async function sendNotification({ channel, to, subject, emailContent, app
           html: emailContent,
         });
         
-        console.log('Email sent successfully');
-
         const notification = new Notification({
           ...basePayload,
           channel: 'email',
@@ -61,7 +58,6 @@ export async function sendNotification({ channel, to, subject, emailContent, app
           content: emailContent,
         });
         await notification.save();
-        console.log('Email notification log saved successfully');
 
       } catch (error) {
         console.error('Email could not be sent:', error);
@@ -90,13 +86,10 @@ export async function getUserNotifications(userId, queryOptions = {}) {
   if (channel) {
     query.channel = channel;
   }
-  
 
-  
   const notifications = await Notification.find(query) 
   .sort({ createdAt: -1 }) 
   .limit(limit);        
   
-  console.log('notifications', notifications);
   return notifications;
 }
