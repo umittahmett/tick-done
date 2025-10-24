@@ -25,7 +25,7 @@ export interface MultiSelectOption {
 }
 
 interface MultiSelectProps {
-  options: MultiSelectOption[]
+  options?: MultiSelectOption[]
   value: string[]
   onValueChange: (value: string[]) => void
   placeholder?: string
@@ -60,7 +60,7 @@ export function MultiSelect({
     }
   }
 
-  const selectedOptions = options.filter((option) => value.includes(option.value))
+  const selectedOptions = options?.filter((option) => value.includes(option.value)) || []
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -146,7 +146,7 @@ export function MultiSelect({
           <CommandList>
             <CommandEmpty>No item found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
+              {options?.map((option) => (
                 <CommandItem
                   key={option.value}
                   onSelect={() => handleSelect(option.value)}
