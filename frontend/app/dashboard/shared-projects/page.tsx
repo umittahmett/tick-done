@@ -54,7 +54,7 @@ export default function DashboardPage() {
 
   return (
     <div className="h-[calc(100dvh-64px)] bg-background">
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="container py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Shared Projects</h1>
