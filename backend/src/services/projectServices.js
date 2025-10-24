@@ -34,12 +34,30 @@ export async function getUserProjects(userId) {
     const projects = await Project.find({
       $or: [
         { creator: userId },
-        { members: userId }
       ]
     })
     .populate('creator', '_id fullname title email')
-    .populate('members', '_id fullname title email')
+
+    return projects 
+  } catch (error) {
+    console.error("Service Error:", error);
   
+    if (!error.isOperational) {
+      throw new AppError('Internal server error', 500); 
+    }
+    
+    throw error;
+  }
+}
+
+export async function getSharedProjects(userId) {
+  try {
+    const projects = await Project.find({
+      members: userId
+    })
+    .populate('creator', '_id fullname title email')
+    .populate('members', '_id fullname title email')
+    
     return projects 
   } catch (error) {
     console.error("Service Error:", error);

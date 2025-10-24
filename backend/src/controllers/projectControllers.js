@@ -27,6 +27,19 @@ export async function getUserProjects(req, res) {
     res.status(err.status || 500).json({ message: err.message })
   }
 }
+
+export async function getSharedProjects(req, res) {
+  try {
+    const data = await projectServices.getSharedProjects(req.user.id)
+
+    res.status(200).json({
+      success: true,
+      data: data
+    })
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message })
+  }
+}
   
 export async function createProject(req, res) {
   try {
