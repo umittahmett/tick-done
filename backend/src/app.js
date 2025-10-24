@@ -21,17 +21,11 @@ app.use(cors({
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
-  max: 100,
+  max: 200,
   message: {message: 'Too many requests from this IP, please try again later'}
 })
 
-const authApiLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 min
-  max: 50,
-  message: {message: 'Too many requests from this IP, please try again later'}
-})
-
-app.use('/api/auth', authApiLimiter, authRoutes)
+app.use('/api/auth', apiLimiter, authRoutes)
 app.use('/api/tasks', apiLimiter, taskRoutes)
 app.use('/api/projects', apiLimiter, projectRoutes)
 app.use('/api/notifications', apiLimiter, notificationRoutes)
