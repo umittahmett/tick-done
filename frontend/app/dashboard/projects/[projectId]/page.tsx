@@ -4,9 +4,7 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter, useParams } from "next/navigation"
 import { api, type PopulatedProject, type PopulatedTask } from "@/lib/api"
-import { DashboardHeader } from "@/components/dashboard-header"
 import { CreateTaskDialog } from "@/components/create-task-dialog"
-import { EditTaskDialog } from "@/components/edit-task-dialog"
 import { TaskColumn } from "@/components/task-column"
 import { ManageMembersDialog } from "@/components/manage-members-dialog"
 import { Button } from "@/components/ui/button"
@@ -23,7 +21,6 @@ export default function ProjectPage() {
   const [project, setProject] = useState<PopulatedProject | null>(null)
   const [tasks, setTasks] = useState<PopulatedTask[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingTask, setEditingTask] = useState<PopulatedTask | null>(null)
   const [showMembersDialog, setShowMembersDialog] = useState(false)
   const { toast } = useToast()
 
@@ -68,25 +65,6 @@ export default function ProjectPage() {
     }
   }
 
-  async function handleDeleteTask(id: string) {
-    if (!confirm("Are you sure you want to delete this task?")) return
-
-    try {
-      await api.deleteTask(id)
-      toast({
-        title: "Task deleted",
-        description: "The task has been deleted successfully.",
-      })
-      loadProjectData()
-    } catch (error: any) {
-      toast({
-        title: "Failed to delete task",
-        description: error.message,
-        variant: "destructive",
-      })
-    }
-  }
-
   if (authLoading || !user || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -102,12 +80,12 @@ export default function ProjectPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="mx-auto max-w-[1600px] px-6 py-8">
+      <main className="container py-8">
         <div className="mb-8">
           <Link href="/dashboard">
             <Button variant="ghost" className="mb-4 gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Projects
+              Go Back
             </Button>
           </Link>
 
@@ -132,43 +110,28 @@ export default function ProjectPage() {
             tasks={todoTasks}
             count={todoTasks.length}
             color="bg-gray-500"
-            onEditTask={setEditingTask}
-            onDeleteTask={handleDeleteTask}
           />
           <TaskColumn
             title="In Progress"
             tasks={inProgressTasks}
             count={inProgressTasks.length}
             color="bg-blue-500"
-            onEditTask={setEditingTask}
-            onDeleteTask={handleDeleteTask}
           />
           <TaskColumn
             title="Review"
             tasks={reviewTasks}
             count={reviewTasks.length}
             color="bg-yellow-500"
-            onEditTask={setEditingTask}
-            onDeleteTask={handleDeleteTask}
           />
           <TaskColumn
             title="Done"
             tasks={doneTasks}
             count={doneTasks.length}
             color="bg-green-500"
-            onEditTask={setEditingTask}
-            onDeleteTask={handleDeleteTask}
-          />
+
+          />        
         </div>
       </main>
-
-      <EditTaskDialog
-        task={editingTask}
-        open={!!editingTask}
-        onOpenChange={(open) => !open && setEditingTask(null)}
-        onTaskUpdated={loadProjectData}
-        projectMembers={project?.members || []}
-      />
 
       <ManageMembersDialog
         project={project}

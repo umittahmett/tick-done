@@ -22,7 +22,7 @@ const NotificationsPage = () => {
   return (
     <div className='container max-w-3xl py-6 sm:py-10'>
       <h1 className='text-2xl font-bold mb-4'>Notifications</h1>
-      <div>
+      <div className='space-y-4'>
         {notifications && notifications.length > 0 ? notifications.map((notification) => (
             <Card className="flex flex-col gap-1.5 sm:gap-3 cursor-pointer !text-start relative pt-3 sm:pt-4 px-4 sm:px-6 pb-4 sm:pb-6" key={notification._id}>
               <time dateTime={notification.createdAt} className="text-xs text-muted-foreground mb-0.5 sm:mb-2">{new Date(notification.createdAt).toLocaleString()}</time>

@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
-import { api, PopulatedTask } from "@/lib/api"
+import { api, type Project } from "@/lib/api"
+import { CreateProjectDialog } from "@/components/create-project-dialog"
+import { ProjectCard } from "@/components/project-card"
 import { useToast } from "@/hooks/use-toast"
-import { CheckCircle } from "lucide-react"
-import { TaskCard } from "@/components/task-card"
+import { Folder } from "lucide-react"
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [tasks, setTasks] = useState<PopulatedTask[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
@@ -23,16 +24,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-      loadTasks()
+      loadProjects()
     }
   }, [user])
 
-  async function loadTasks() {
+  async function loadProjects() {
     try {
-      const data = await api.getUserTasks()
-      setTasks(data)
+      const data = await api.getSharedProjects()
+      setProjects(data)
     } catch (error: any) {
-      setTasks([])
+      setProjects([])
       toast({
         title: "Failed to load projects",
         description: error.message,
@@ -56,8 +57,8 @@ export default function DashboardPage() {
       <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Tasks</h1>
-            <p className="mt-1 text-muted-foreground">Manage your tasks and collaborate with your team</p>
+            <h1 className="text-3xl font-bold">Shared Projects</h1>
+            <p className="mt-1 text-muted-foreground">Manage your projects and collaborate with your team</p>
           </div>
         </div>
 
@@ -65,21 +66,22 @@ export default function DashboardPage() {
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
-        ) :
-        (
+        ) : projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12">
+            <Folder className="mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-semibold">No shared projects yet</h3>
+            <p className="mb-4 text-sm text-muted-foreground">Get started by creating your first project</p>
+            <CreateProjectDialog onProjectCreated={loadProjects} />
+          </div>
+        ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {tasks && tasks.length > 0 ? tasks.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).map((task) => (
-              <TaskCard
-                key={task._id}
-                task={task}
+            {projects.map((project) => (
+              <ProjectCard
+                isCreator={false}
+                key={project._id}
+                project={project}
               />
-            )) : 
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 col-span-full">
-              <CheckCircle className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="mb-2 text-lg font-semibold">No tasks yet</h3>
-              <p className="mb-4 text-sm text-muted-foreground">Get started by creating your first task</p>
-            </div>
-            }
+            ))}
           </div>
         )}
       </main>

@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -14,6 +15,7 @@ import Link from "next/link"
 
 export function NotificationsPopup() {
   const { notifications } = useAuth()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
