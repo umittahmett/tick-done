@@ -9,11 +9,9 @@ interface TaskColumnProps {
   tasks: PopulatedTask[]
   count: number
   color: string
-  onEditTask: (task: PopulatedTask) => void
-  onDeleteTask: (id: string) => void
 }
 
-export function TaskColumn({ title, tasks, count, color, onEditTask, onDeleteTask }: TaskColumnProps) {
+export function TaskColumn({ title, tasks, count, color }: TaskColumnProps) {
   return (
     <div className="flex min-w-[320px] flex-col">
       <div className="mb-4 flex items-center gap-2">
@@ -28,7 +26,7 @@ export function TaskColumn({ title, tasks, count, color, onEditTask, onDeleteTas
             <p className="text-sm text-muted-foreground">No tasks</p>
           </div>
         ) : (
-          tasks.map((task) => <TaskCard key={task._id} task={task} onEdit={onEditTask} onDelete={onDeleteTask} />)
+          tasks.map((task) => <TaskCard key={task._id} task={task} />)
         )}
       </div>
     </div>

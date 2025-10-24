@@ -31,7 +31,6 @@ export function CreateTaskDialog({ projectId, onTaskCreated, projectMembers }: C
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [status, setStatus] = useState<Task["status"]>("todo")
   const [priority, setPriority] = useState<Task["priority"]>("medium")
   const [dueDate, setDueDate] = useState("")
   const [assignments, setAssignments] = useState<string[]>([])
@@ -46,7 +45,6 @@ export function CreateTaskDialog({ projectId, onTaskCreated, projectMembers }: C
       await api.createTask(projectId, {
         title,
         description,
-        status,
         priority,
         dueDate,
         assignments,
@@ -58,7 +56,6 @@ export function CreateTaskDialog({ projectId, onTaskCreated, projectMembers }: C
       setOpen(false)
       setTitle("")
       setDescription("")
-      setStatus("todo")
       setPriority("medium")
       setDueDate("")
       setAssignments([])
@@ -111,7 +108,7 @@ export function CreateTaskDialog({ projectId, onTaskCreated, projectMembers }: C
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select value={status} onValueChange={(value) => setStatus(value as Task["status"])}>
                 <SelectTrigger id="status">
@@ -124,7 +121,7 @@ export function CreateTaskDialog({ projectId, onTaskCreated, projectMembers }: C
                   <SelectItem value="done">Done</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
