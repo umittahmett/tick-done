@@ -6,16 +6,15 @@ import { AppError } from '../utils/appError.js'
 
 dotenv.config()
 
-export async function getUserTasks(userId, projectId) {
+export async function getUserTasks(userId) {
   try {
     const tasks = await Task.find({
-      project: projectId,
       assignments: userId
     })
-    .populate('creator', '_id fullname title email')
     .populate('assignments', '_id fullname title email')
+    .populate('project', '_id name')
     
-    return { tasks }
+    return tasks 
   } catch (error) {
     console.error("Service Error:", error);
   
@@ -34,6 +33,7 @@ export async function getAllProjectTasks(projectId) {
     })
     .populate('creator', '_id fullname title email')
     .populate('assignments', '_id fullname title email')
+    .populate('project', '_id name')
     
     return tasks 
   } catch (error) {
@@ -52,10 +52,11 @@ export async function getTask(taskId) {
     const task = await Task.findOne({ _id: taskId })
     .populate('creator', '_id fullname title email')
     .populate('assignments', '_id fullname title email')
-
+    .populate('project', '_id name')
+    
     if(!task) throw new AppError('Task not found', 404)
 
-    return { task }
+    return task 
   } catch (error) {
     console.error("Service Error:", error);
 
@@ -147,7 +148,7 @@ export async function updateTask({ taskId, updateFields }) {
   
     await task.save()
   
-    return { task }
+    return task
   } catch (error) {
     console.error("Service Error:", error);
 

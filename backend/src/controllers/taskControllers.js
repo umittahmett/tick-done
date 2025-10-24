@@ -21,12 +21,11 @@ export async function createTask(req, res) {
 export async function getUserTasks(req, res) {
   try {
     const userId = req.user.id
-    const { projectId } = req.params
-    const data = await taskServices.getUserTasks(userId, projectId)
+    const data = await taskServices.getUserTasks(userId)
 
     res.status(200).json({
       success: true,
-      data: data
+      data
     })
   } catch (err) {
     res.status(err.status || 500).json({ message: err.message })
@@ -54,7 +53,7 @@ export async function getTask(req, res) {
 
     res.status(200).json({
       success: true,
-      data: data
+      data
     })
   } catch (err) {
     res.status(err.status || 500).json({ message: err.message })

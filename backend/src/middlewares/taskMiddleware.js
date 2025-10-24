@@ -29,6 +29,29 @@ export async function canViewTask(req, res, next) {
   }
 }
 
+export async function canDeleteTask(req, res, next) {
+  try {
+    const { taskId } = req.params
+    if (!taskId || !mongoose.Types.ObjectId.isValid(taskId)) {
+      throw new AppError('Task ID is invalid or not defined', 400)
+    }
+
+    const task = await Task.findById(taskId).populate('project', '_id creator')
+    if (!task) {
+      throw new AppError('Task not found', 404)
+    }
+
+    if (task.project.creator.toString() !== req.user.id) {
+      throw new AppError('Only project creator can delete tasks', 403)
+    }
+
+    req.task = task
+    next()
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function canManageProjectTasks(req, res, next) {
   try {
     const { projectId } = req.params
