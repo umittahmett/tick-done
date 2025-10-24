@@ -34,7 +34,10 @@ export interface Task {
   dueDate: string
   assignments: string[]
   creator: string
-  project: string
+  project: {
+    _id: string
+    name: string
+  }
   createdAt: string
   updatedAt: string
 }
@@ -172,6 +175,13 @@ class ApiClient {
     return data.data
   }
 
+  async getSharedProjects(): Promise<Project[]> {
+    const res = await axiosClient.get(`${API_URL}/projects/getSharedProjects`)
+    const data = await res.data
+    if (!res.data.success) throw new Error(data.message || "Failed to get shared projects")
+    return data.data
+  }
+
   async getProject(projectId: string): Promise<PopulatedProject> {
     const res = await axiosClient.get(`${API_URL}/projects/getProject/${projectId}`)
     const data = await res.data
@@ -181,7 +191,7 @@ class ApiClient {
 
   async updateProject(projectId: string, updates: Partial<Project>): Promise<Project> {
     const res = await axiosClient.put(`${API_URL}/projects/updateProject/${projectId}`, {
-      updates,
+      ...updates,
     })
     const data = await res.data
     if (!res.data.success) throw new Error(data.message || "Failed to update project")
@@ -229,7 +239,7 @@ class ApiClient {
   // Task endpoints
   async createTask(projectId: string, task: Partial<Task>): Promise<Task> {
     const res = await axiosClient.post(`${API_URL}/tasks/createTask/${projectId}`, {
-      task,
+      ...task,
     })
     const data = await res.data
     if (!res.data.success) throw new Error(data.message || "Failed to create task")
@@ -243,23 +253,23 @@ class ApiClient {
     return data.data
   }
 
-  async getUserTasks(projectId: string): Promise<Task[]> {
-    const res = await axiosClient.get(`${API_URL}/tasks/getUserTasks/${projectId}`)
+  async getUserTasks(): Promise<PopulatedTask[]> {
+    const res = await axiosClient.get(`${API_URL}/tasks/getUserTasks`)
     const data = await res.data
     if (!res.data.success) throw new Error(data.message || "Failed to get user tasks")
     return data.data
   }
 
-  async getTask(taskId: string): Promise<Task> {
+  async getTask(taskId: string): Promise<PopulatedTask> {
     const res = await axiosClient.get(`${API_URL}/tasks/getTask/${taskId}`)
     const data = await res.data
     if (!res.data.success) throw new Error(data.message || "Failed to get task")
     return data.data
   }
 
-  async updateTask(taskId: string, updates: Partial<Task>): Promise<Task> {
+  async updateTask(taskId: string, updates: Partial<Task>): Promise<PopulatedTask> {
     const res = await axiosClient.put(`${API_URL}/tasks/updateTask/${taskId}`, {
-      updates,
+      ...updates,
     })
     const data = await res.data
     if (!res.data.success) throw new Error(data.message || "Failed to update task")
