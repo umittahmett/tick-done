@@ -150,6 +150,9 @@ export async function addMemberToProject({ projectId, invitee, inviter }) {
     
     const inviteeUser = await User.findOne({ email: invitee })
     if(!inviteeUser) throw new AppError('User not found', 404)
+
+    if(inviterUser._id === inviteeUser._id) throw new AppError('You cannot invite yourself', 409)
+    if(inviterUser._id === project.creator) throw new AppError('You are the creator of this project', 409)
     
     if(project.members.includes(inviteeUser._id)) throw new AppError('User is already a member of this project', 409)
     const hasInvited = await Invitation.findOne({ project: projectId, invitee, inviter, status: 'pending' })
